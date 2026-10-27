@@ -12,5 +12,7 @@
 | P1 | AA/GPIO가 Prospector로 유입될 위험 | layout만 공유, AA/kscan/SPI/LED는 peripheral 전용 dtsi/conf로 분리. 최종 빌드 DTS/Kconfig로 재확인 예정 |
 | P2 | Studio에서 임의 물리 좌표를 편집할 수 있다고 오인할 수 있음 | 펌웨어 물리 배열 표시/키 바인딩 편집과 소스 좌표 수정/재빌드를 안내서에서 구분 |
 | P1 | 조도 기능을 끈 상태에도 upstream DT 노드로 APDS9960 드라이버가 활성화됨 | 실행 40510893928에서 CONFIG_APDS9960=y 확인. 최종 적용 snippet에서 센서/I2C 노드를 disabled, conf에서 드라이버 n 지정. 재빌드 필요 |
+| P2 | 실제 배터리 보고 전 초기화 이벤트가 0%로 표시될 수 있음 | 고정 Prospector SHA와 원문 두 곳을 검사하는 CI 패치로 미수신 source를 무효값으로 처리해 초기 N/A 유지 |
+| P2 | UF2만 저장하면 실제 적용 설정과 의존성 SHA를 추적하기 어려움 | 고정 ZMK reusable workflow를 로컬에 포함하고 Actions SHA 고정. 각 타깃의 frozen manifest, config, DTS, 적용 패치, 소스 SHA를 UF2와 함께 저장 |
 
 남은 검토: 최종 Prospector RAM/FLASH, fixed brightness/센서 비활성화, 양쪽 실제 배터리 보고와 연결 슬롯, USB Studio, 재연결/전원 재투입, 아티팩트 및 SHA 기록. 전체 목표는 아직 미완료다.

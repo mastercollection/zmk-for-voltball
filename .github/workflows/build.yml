@@ -13,4 +13,4 @@ jobs:
       - run: python3 tests/check_mapping.py
   build:
     needs: validate
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85
+    uses: ./.github/workflows/build-firmware.yml
