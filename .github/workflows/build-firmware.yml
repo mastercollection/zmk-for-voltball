@@ -147,7 +147,7 @@ jobs:
         run: west zephyr-export
 
       - name: Apply reviewed pinned-module fixes
-        run: python3 "${{ github.workspace }}/tests/patch_modules.py" "${{ env.base_dir }}"
+        run: python3 "$GITHUB_WORKSPACE/tests/patch_modules.py" "${{ env.base_dir }}"
 
       - name: West Build (${{ env.display_name }})
         working-directory: ${{ env.base_dir }}
