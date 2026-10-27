@@ -3,4 +3,4 @@ build:
   kconfig: Kconfig
   settings:
     board_root: .
-    dts_root: modules/non-lipo
+    dts_root: .

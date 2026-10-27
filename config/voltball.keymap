@@ -12,6 +12,9 @@
 
 &lt { quick-tap-ms = <185>; };
 
+/* Manual holds own the layer until release; auto-pointer timeout cannot cancel them. */
+&mo { locking; };
+
 / {
     combos {
         compatible = "zmk,combos";

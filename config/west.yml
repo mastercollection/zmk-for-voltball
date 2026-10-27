@@ -30,9 +30,6 @@ manifest:
     - name: zmk-input-processor-keybind
       remote: zettaface
       revision: 64303bd3932bfa7f49261fc6d0c9a3fdd06f8271
-    - name: zmk-input-processor-threshold-temp-layer
-      remote: gohanda11
-      revision: a68fedf50dd3b25d7aa594776c26b943fe41cfbf
     - name: prospector-zmk-module
       remote: carrefinho
       revision: ed98221f3b52b7066dbb10ba3af8a29150b93a5a

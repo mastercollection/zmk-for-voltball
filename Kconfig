@@ -1,1 +1,2 @@
 rsource "modules/non-lipo/Kconfig"
+rsource "modules/threshold-layer/Kconfig"
