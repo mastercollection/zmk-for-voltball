@@ -224,7 +224,7 @@ jobs:
       - name: Record build evidence
         working-directory: ${{ env.base_dir }}
         run: |
-          west manifest --freeze > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-west.yml"
+          west manifest --freeze --active-only > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-west.yml"
           cp "${{ env.build_dir }}/zephyr/.config" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.config"
           cp "${{ env.build_dir }}/zephyr/zephyr.dts" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.dts"
           git -C prospector-zmk-module diff > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-prospector.patch"
