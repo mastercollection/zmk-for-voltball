@@ -1,0 +1,19 @@
+#include "voltball-layout.dtsi"
+#include "voltball-split-input.dtsi"
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &voltball_layout;
+    };
+    kscan0: kscan {
+        compatible = "zmk,kscan-mock";
+        rows = <0>;
+        columns = <0>;
+        events = <0>;
+    };
+    trackball_central_listener: trackball_central_listener {
+        compatible = "zmk,input-listener";
+        device = <&trackball_split>;
+    };
+};
+#include "voltball-trackball-processing.dtsi"

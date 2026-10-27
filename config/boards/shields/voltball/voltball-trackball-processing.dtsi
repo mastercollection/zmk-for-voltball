@@ -1,0 +1,74 @@
+#include <input/processors.dtsi>
+#include <input/processors/zmk-input-processor-keybind.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/input_transform.h>
+/ {
+    /*
+     * 中文: 轨迹球移动超过阈值时临时进入指定层，用于把普通指针移动切到导航/鼠标层。
+     * English: Temporarily activates a target layer when trackball movement exceeds the threshold.
+     */
+    zip_threshold_temp_layer: input_processor_threshold_temp_layer {
+        compatible = "zmk,input-processor-threshold-temp-layer";
+        #input-processor-cells = <2>;
+        /* 中文: 指针移动累积到 100 后触发临时层；English: Activate after accumulated pointer motion reaches 100. */
+        activation-threshold = <100>;
+        /* 中文: 不要求触发前保持空闲；English: Do not require an idle period before activation. */
+        require-prior-idle-ms = <0>;
+        /* 中文: 不排除任何键位；English: No key positions are excluded from activation. */
+        excluded-positions = <>;
+    };
+
+    /*
+     * 中文: 第 1 层使用轨迹球输出四向方向键。
+     * English: Converts trackball motion to four-way arrow keys on layer 1.
+     */
+    zip_trackball_arrows: zip_trackball_arrows {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        track_remainders;
+        mode = <1>;
+        bindings = <&kp RIGHT>,
+                   <&kp LEFT>,
+                   <&kp UP>,
+                   <&kp DOWN>;
+        tick = <12>;
+        wait-ms = <0>;
+        tap-ms = <8>;
+        max_pending_activations = <10>;
+    };
+};
+
+&trackball_central_listener {
+    status = "okay";
+    device = <&trackball_split>;
+
+    /*
+     * 中文: 普通轨迹球模式。移动超过阈值后临时进入第 3 层 500ms。
+     * English: Normal trackball mode activate layer 3 for 500 ms after threshold movement.
+     */
+    input-processors = <&zip_threshold_temp_layer 3 500>;
+
+    /*
+     * 中文: 第 1 层把轨迹球移动转换为上下左右方向键。
+     * English: On layer 1, convert trackball motion to arrow-key taps.
+     */
+    arrows {
+        layers = <1>;
+        input-processors = <&zip_trackball_arrows>;
+    };
+
+    /*
+     * 中文: 第 5 层启用滚动模式，把轨迹球移动转换成滚轮事件。
+     * English: Layer 5 enables scroll mode, converting trackball movement into wheel events.
+     */
+    scroller {
+        layers = <5>;
+        input-processors =
+            /* 中文: 将指针移动映射为滚动事件；English: Map pointer motion to scroll events. */
+            <&zip_xy_to_scroll_mapper>,
+            /* 中文: 反转滚动 Y 轴；English: Invert the scroll Y axis. */
+            <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
+            /* 中文: 将滚动量缩放为 1/10；English: Scale scroll amount to 1/10. */
+            <&zip_scroll_scaler 1 10>;
+    };
+};

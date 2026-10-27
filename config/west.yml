@@ -14,25 +14,30 @@ manifest:
     # English: Remote for the threshold temporary layer module, which activates a layer from pointer movement and times out.
     - name: gohanda11
       url-base: https://github.com/gohanda11
+    - name: carrefinho
+      url-base: https://github.com/carrefinho
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: v0.3
+      revision: 4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85
       import: app/west.yml
     - name: zmk-feature-status-led
       remote: sekigon-gonnoc
-      revision: main
+      revision: 1f827a452013199e42544d47fdf27e5ebd2d7b4b
     - name: zmk-feature-non-lipo-battery-management
       remote: sekigon-gonnoc
-      revision: main
+      revision: 43fa56fb7d1e065393e926b6caa0ea02cb86eca7
     - name: zmk-driver-paw3222
       remote: sekigon-gonnoc
-      revision: main
+      revision: df652881be2520bde4f64ab6ca35e4c5708f4f9b
     - name: zmk-input-processor-keybind
       remote: zettaface
-      revision: main
+      revision: 64303bd3932bfa7f49261fc6d0c9a3fdd06f8271
     - name: zmk-input-processor-threshold-temp-layer
       remote: gohanda11
-      revision: main
+      revision: a68fedf50dd3b25d7aa594776c26b943fe41cfbf
+    - name: prospector-zmk-module
+      remote: carrefinho
+      revision: ed98221f3b52b7066dbb10ba3af8a29150b93a5a
   self:
     path: config
