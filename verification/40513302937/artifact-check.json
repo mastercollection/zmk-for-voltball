@@ -1,0 +1,30 @@
+{
+  "source_sha": "3e576882a0920be3de4b7cc4967679d065c81381",
+  "firmware": {
+    "voltball_left": {
+      "bytes": 385536,
+      "sha256": "bfd018c708179111beec7ec6b7307fd8f080a57adb8c8b85f2b80c5c2a7b9899"
+    },
+    "voltball_right": {
+      "bytes": 398336,
+      "sha256": "2d71358dc6764a7b00afd7bbd6f8871599ed5b7381b32903c2ae3a118b60ff44"
+    },
+    "prospector": {
+      "bytes": 1128448,
+      "sha256": "49bf24ca933cdaa7fcba43fc335e10b1fc85a040f0703d4a34ddc789ca4d9853"
+    },
+    "voltball_left_settings_reset": {
+      "bytes": 105472,
+      "sha256": "0dd6be82134d011c8ee58794940f87e03b4eaf8e859ab336ef123bca190eef3a"
+    },
+    "voltball_right_settings_reset": {
+      "bytes": 105472,
+      "sha256": "0dd6be82134d011c8ee58794940f87e03b4eaf8e859ab336ef123bca190eef3a"
+    },
+    "prospector_settings_reset": {
+      "bytes": 118272,
+      "sha256": "c39e8639e83ec13bbe4d152a3f085306a16dc3b87a2658af16134085ef0eeaf7"
+    }
+  },
+  "result": "PASS"
+}

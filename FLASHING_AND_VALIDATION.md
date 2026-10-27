@@ -1,7 +1,7 @@
 # 플래싱·복구·실물 검증
 
-**현재 상태: 빌드 검증 전 초안. 아직 플래싱할 배포 아티팩트가 없다.**
-최종 성공한 Actions 실행의 소스 SHA, 모듈 SHA, 아티팩트를 기록한 뒤 사용한다. 서로 다른 실행에서 받은 정상 펌웨어를 섞지 않는다.
+**Actions 빌드 검증 완료, 실물 동작은 미검증.**
+BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다. 서로 다른 실행의 정상 펌웨어를 섞지 않는다.
 
 ## 백업
 
@@ -17,7 +17,7 @@
 | Voltball 오른쪽 | nice_nano@2.0.0//zmk | voltball_right | voltball_right_settings_reset |
 | Prospector | xiao_ble//zmk | prospector | prospector_settings_reset |
 
-이 표는 `build.yaml`의 아티팩트 이름이다. 최종 ZIP 안의 실제 UF2 파일명과 SHA256은 빌드 성공 후 기록한다. 왼쪽과 오른쪽 reset은 같은 보드용이지만 XIAO reset은 서로 교환할 수 없다.
+이 표는 `build.yaml`의 아티팩트 이름이다. 실제 파일은 각 이름에 `.uf2`가 붙으며 SHA256은 BUILD_REPORT.md에 기록했다. 왼쪽과 오른쪽 reset은 같은 보드용이지만 XIAO reset은 서로 교환할 수 없다.
 
 ## 초기화와 첫 페어링
 
@@ -75,4 +75,4 @@
 
 - 고정한 ZMK 소스의 `docs/docs/features/studio.md` 및 `docs/docs/troubleshooting/connection-issues.mdx`.
 - 고정한 Prospector 모듈 README의 peripheral 페어링 순서 설명.
-- 최종 Actions 실행 URL, 파일 체크섬, 메모리 사용량, 검증 결과는 아직 미작성이다.
+- 최종 Actions 실행 URL, 파일 체크섬, 메모리 사용량, 검증 결과는 BUILD_REPORT.md 및 verification/40513302937에 기록했다.

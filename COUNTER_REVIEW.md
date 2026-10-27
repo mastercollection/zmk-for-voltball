@@ -1,18 +1,30 @@
-# 카운터 리뷰 (진행 중)
+# 최종 카운터 리뷰
 
-최종 Actions와 산출물 검증 후 확정한다. 아래 소스 검토는 실물 검증을 대체하지 않는다.
+대상 펌웨어 소스 `3e576882a0920be3de4b7cc4967679d065c81381`. 수정 후 실행 40513302937에서 6개 대상과 검증 job이 모두 성공했고, 다운로드 산출물 검사도 PASS였다. 아래 결과는 소스·컴파일·생성 설정의 검증이며 실물 검증을 주장하지 않는다.
 
-| 심각도 | 발견 사항 | 조치 및 증거 |
+## 지적 및 수정
+
+- **P1** `modules/threshold-layer/src/input_processor_threshold_temp_layer.c:70,117,157`: main API와 인자 불일치로 빌드 실패. index→ID 변환과 non-locking 인자 추가; 최종 Prospector 빌드 성공.
+- **P1** `modules/non-lipo/src/non_lipo_battery_management.c:34,287`: 정수 300000을 IS_ENABLED로 검사해 5분 절전 코드 제외. >0으로 수정; 최종 양쪽 컴파일 및 설정 확인. 실제 전류·깨움은 실물 검증 대상.
+- **P1** `config/voltball.keymap:16`: 자동 타이머가 수동 MOUSE 홀드를 해제할 위험. 수동 mo/lt를 locking으로 보호하고 자동 해제는 non-locking으로 제한.
+- **P1** `config/boards/shields/voltball/voltball-trackball-processing.dtsi:15`: 자동 MOUSE 상태에서 클릭 입력 전 레이어가 꺼질 위험. 클릭 위치 35/36/37을 제외 목록에 포함; 최종 DTS 확인.
+- **P1** `config/voltball.keymap`: 38→42키 및 레이어 오매핑 위험. 승인된 위치 적용, tests/check_mapping.py에서 228개 원본 바인딩·9개 combo·hold-tap 시간·추가 키·42개 좌표/transform 검사 PASS.
+- **P1** peripheral 하드웨어의 central 혼입 위험. layout만 공유하고 AA/GPIO/SPI를 분리. 최종 central config에서 NON_LIPO/PAW3222/STATUS_LED/SLEEP 미활성, DTS에서 AA 노드 부재 확인.
+- **P1** 조도 기능 n만으로는 upstream APDS9960 드라이버가 남음. prospector-fixed snippet으로 센서/I2C disabled 및 CONFIG_APDS9960=n. 최종 config/DTS 확인.
+- **P2** `tests/patch_modules.py:18`: 배터리 미수신 초기 이벤트가 0%로 보일 수 있음. 정확한 Prospector SHA에 무효 source 패치를 적용해 N/A 유지. 생성 patch 아티팩트에서 확인.
+- **P2** UF2만 보존하면 재현 근거 부족. 빌드 Actions SHA·컨테이너 digest 고정, 각 보드 config/DTS/frozen manifest/패치/소스 SHA 저장. 전체 아티팩트와 체크섬 확인.
+- **P2** Studio 물리 좌표 편집을 지원한다고 오인할 위험. 키 바인딩 편집과 소스 좌표 변경/재빌드를 안내서에서 구분.
+
+## 요구사항별 근거
+
+| 항목 | 확인한 근거 | 판정 |
 | --- | --- | --- |
-| P1 | 원본 threshold 모듈은 main 레이어 API의 locking 인자가 없어 Prospector 빌드 실패 | 첫 실행 40510459892, job 122210765144 로그의 too few arguments. 고정 원본을 포함하고 index→ID 변환 및 false 인자를 추가; 수정 빌드 진행 중 |
-| P1 | AA 광고 절전 설정 300000을 IS_ENABLED로 검사하여 코드가 빠짐 | 고정 배터리 모듈의 조건 두 곳을 >0으로 수정; 양쪽 초기 Actions 컴파일 성공. 실물 5분/깨움 검증 필요 |
-| P1 | 자동 MOUSE 레이어 해제가 수동 레이어 홀드를 취소할 수 있음 | main의 locking API를 사용해 수동 mo/lt 홀드를 보호하고 자동 해제는 non-locking으로 제한 |
-| P1 | 클릭 위치 입력이 자동 MOUSE 레이어를 먼저 해제할 위험 | MOUSE의 클릭 위치 35/36/37을 excluded-positions에 포함. 클릭/드래그와 release는 실물 확인 필요 |
-| P1 | TOTEM과 Voltball의 하단 배열 및 레이어 번호가 다름 | 사용자가 승인한 38→42 매핑 적용. tests/check_mapping.py가 228개 바인딩, 9개 combo, hold-tap 시간, 추가 4키, 42개 transform/좌표 개수를 검사 |
-| P1 | AA/GPIO가 Prospector로 유입될 위험 | layout만 공유, AA/kscan/SPI/LED는 peripheral 전용 dtsi/conf로 분리. 최종 빌드 DTS/Kconfig로 재확인 예정 |
-| P2 | Studio에서 임의 물리 좌표를 편집할 수 있다고 오인할 수 있음 | 펌웨어 물리 배열 표시/키 바인딩 편집과 소스 좌표 수정/재빌드를 안내서에서 구분 |
-| P1 | 조도 기능을 끈 상태에도 upstream DT 노드로 APDS9960 드라이버가 활성화됨 | 실행 40510893928에서 CONFIG_APDS9960=y 확인. 최종 적용 snippet에서 센서/I2C 노드를 disabled, conf에서 드라이버 n 지정. 재빌드 필요 |
-| P2 | 실제 배터리 보고 전 초기화 이벤트가 0%로 표시될 수 있음 | 고정 Prospector SHA와 원문 두 곳을 검사하는 CI 패치로 미수신 source를 무효값으로 처리해 초기 N/A 유지 |
-| P2 | UF2만 저장하면 실제 적용 설정과 의존성 SHA를 추적하기 어려움 | 고정 ZMK reusable workflow를 로컬에 포함하고 Actions SHA 고정. 각 타깃의 frozen manifest, config, DTS, 적용 패치, 소스 SHA를 UF2와 함께 저장 |
+| 키 위치·레이어 | 원본 fixture 대조 및 승인 매핑, BASE0/SYM1/NAVI2/FUNC3/NUM4/MOUSE5/SCROLL6 | 소스 검사 통과 |
+| BLE 입력 | 오른쪽 PAW3222→input-split reg0, central reg0→listener, NAVI2/SCROLL6 override, 자동 MOUSE5 | 양쪽 생성 DTS/config 및 빌드 통과 |
+| 배터리·GPIO 분리 | AA 두 peripheral만 활성, central 배터리 fetching=2 peripherals, 화면은 peripheral event 사용 | 생성 설정 및 소스 확인 |
+| 화면·메모리 | 240×280, brightness50, APDS9960 disabled, central RAM63.91%/FLASH69.92% | 컴파일·설정 통과, 화면 실물 미검증 |
+| Studio | central UART=y, BLE transport=n, locking=y, 42키 physical-layout, unlock33 | 컴파일·설정 통과, USB UI 실물 미검증 |
+| 절전·재연결 | peripheral sleep=y/adv timeout300000, central sleep=n, 기존 IRQ/wakeup GPIO 유지 | 소스·설정 확인, 실물 미검증 |
+| CI 재현성 | 성공 소스 SHA, 고정 모듈/Actions/이미지, frozen 활성 의존성, UF2 6개 SHA256 | 기록 및 다운로드 검사 통과 |
 
-남은 검토: 최종 Prospector RAM/FLASH, fixed brightness/센서 비활성화, 양쪽 실제 배터리 보고와 연결 슬롯, USB Studio, 재연결/전원 재투입, 아티팩트 및 SHA 기록. 전체 목표는 아직 미완료다.
+이 검토에서 발견한 구현 결함은 수정하고 관련 6개 빌드를 다시 통과시켰다. 잔여 실물 검증: 키 감각/hold-tap·콤보 타이밍, 클릭·드래그, 화면 및 배터리 보고, 실제 소비전류·저전압·5분 깨움, 양쪽 순서별 재연결, USB 재연결·전원 재투입. 구체적인 절차는 FLASHING_AND_VALIDATION.md에 있다.
