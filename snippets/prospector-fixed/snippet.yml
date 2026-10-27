@@ -1,0 +1,3 @@
+name: prospector-fixed
+append:
+  EXTRA_DTC_OVERLAY_FILE: prospector-fixed.overlay

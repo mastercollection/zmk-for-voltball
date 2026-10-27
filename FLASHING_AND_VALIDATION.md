@@ -32,7 +32,7 @@
 
 ## Studio 저장값과 물리 배열
 
-- Chrome/Edge에서 https://zmk.studio/ 를 열고 USB로 연결된 Prospector를 선택한다. 확정된 키맵의 Studio unlock 키로 잠금을 해제한다. **해당 키 위치는 현재 매핑 답변 대기 중이다.**
+- Chrome/Edge에서 https://zmk.studio/ 를 열고 USB로 연결된 Prospector를 선택한다. 맨 아래 왼쪽에서 두 번째 키(index 33)로 Studio 잠금을 해제한다.
 - 새 소스 키맵을 사용하려면 Studio의 **Restore Stock Settings**를 실행한다. 저장하지 않은 작업은 먼저 기록한다. 이 동작은 Studio 설정 복원이며 세 장치 본딩 초기화 절차와 구분한다.
 - 변경 후 저장하고 USB를 다시 연결해 유지 여부를 확인한다.
 - Studio는 펌웨어에 정의된 42키 물리 배열을 표시하고 바인딩을 편집한다. 물리 좌표 자체를 새로 만드는 기능은 지원하지 않는다. 좌표 변경은 `config/boards/shields/voltball/voltball-layout.dtsi`에서 키맵/transform과 같은 순서를 유지해 수정하고 Actions로 재빌드해야 한다.
