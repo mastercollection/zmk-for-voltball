@@ -8,6 +8,17 @@ Voltball 양쪽(nice!nano v2)은 BLE peripheral, Prospector(XIAO nRF52840)는 ce
 - [백업·플래싱·왼쪽 우선 페어링·Studio 복원·복구·실물 검증](FLASHING_AND_VALIDATION.md)
 - [카운터 리뷰와 수정 근거](COUNTER_REVIEW.md)
 
+## 다운로드
+
+Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evidence.zip`은 설정·devicetree·모듈 버전 등의 검증 자료이며 장치에 복사하지 않는다.
+
+- Prospector: `prospector.uf2`
+- 왼쪽 Voltball: `voltball_left.uf2`
+- 오른쪽 Voltball: `voltball_right.uf2`
+- 각 `*_settings_reset.uf2`: 초기화가 필요할 때 먼저 넣은 뒤 정상 펌웨어를 다시 넣는다.
+
+공개 배포 ZIP은 [Releases](https://github.com/mastercollection/zmk-for-voltball/releases)에서 받는다. GitHub가 자동 제공하는 Source code ZIP은 설치용 펌웨어가 아니다.
+
 ## 구성
 
 - 검증한 ZMK main SHA 고정. v0.3 미사용.

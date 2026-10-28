@@ -224,17 +224,26 @@ jobs:
       - name: Record build evidence
         working-directory: ${{ env.base_dir }}
         run: |
-          west manifest --freeze --active-only > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-west.yml"
-          cp "${{ env.build_dir }}/zephyr/.config" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.config"
-          cp "${{ env.build_dir }}/zephyr/zephyr.dts" "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}.dts"
-          git -C prospector-zmk-module diff > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-prospector.patch"
-          printf '%s\n' '${{ github.sha }}' > "${{ env.build_dir }}/artifacts/${{ env.artifact_name }}-source-sha.txt"
+          mkdir "${{ env.build_dir }}/evidence"
+          west manifest --freeze --active-only > "${{ env.build_dir }}/evidence/${{ env.artifact_name }}-west.yml"
+          cp "${{ env.build_dir }}/zephyr/.config" "${{ env.build_dir }}/evidence/${{ env.artifact_name }}.config"
+          cp "${{ env.build_dir }}/zephyr/zephyr.dts" "${{ env.build_dir }}/evidence/${{ env.artifact_name }}.dts"
+          git -C prospector-zmk-module diff > "${{ env.build_dir }}/evidence/${{ env.artifact_name }}-prospector.patch"
+          printf '%s\n' '${{ github.sha }}' > "${{ env.build_dir }}/evidence/${{ env.artifact_name }}-source-sha.txt"
 
       - name: Archive (${{ env.display_name }})
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: artifact-${{ env.artifact_name }}
           path: ${{ env.build_dir }}/artifacts
+          if-no-files-found: error
+
+      - name: Archive build evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: evidence-${{ env.artifact_name }}
+          path: ${{ env.build_dir }}/evidence
+          if-no-files-found: error
 
   merge:
     runs-on: ubuntu-latest
@@ -247,4 +256,11 @@ jobs:
         with:
           name: ${{ inputs.archive_name }}
           pattern: artifact-*
+          delete-merged: true
+
+      - name: Merge build evidence separately
+        uses: actions/upload-artifact/merge@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: build-evidence
+          pattern: evidence-*
           delete-merged: true
