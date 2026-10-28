@@ -11,6 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - run: python3 tests/check_mapping.py
+      - name: Check mascot input and animation rules
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror tests/mascot_logic_test.c -o /tmp/mascot-test
+          /tmp/mascot-test
   build:
     needs: validate
     uses: ./.github/workflows/build-firmware.yml
