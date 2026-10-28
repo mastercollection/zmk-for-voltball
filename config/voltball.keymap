@@ -127,10 +127,10 @@
 
         MOUSE {
             bindings = <
-&trans  &trans    &trans    &trans    &trans                         &trans  &trans    &trans    &trans    &trans
-&trans  &mkp MB1  &mkp MB3  &mkp MB2  &trans                         &trans  &mkp MB1  &mkp MB3  &mkp MB2  &trans
-&trans  &trans    &trans    &trans    &trans     &trans      &trans  &trans  &mkp MB4  &trans    &mkp MB5  &trans
-&trans  &trans    &trans    &trans    &kp LCTRL  &trans      &trans  &trans                      &trans    &trans
+&trans  &trans  &trans  &trans  &trans                           &trans    &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &trans                           &trans    &mkp MB4  &mkp MB3  &mkp MB5  &trans
+&trans  &trans  &trans  &trans  &trans     &trans      &trans    &trans    &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &kp LCTRL  &trans      &mkp MB2  &mkp MB1                      &trans    &trans
             >;
 
             display-name = "MOUSE";
