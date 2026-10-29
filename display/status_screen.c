@@ -133,8 +133,13 @@ static void screen_tick(lv_timer_t *timer) {
         else if (value == 257) { lv_label_set_text_fmt(battery_labels[i], "%c N/A", i ? 'R' : 'L'); }
         else { lv_label_set_text_fmt(battery_labels[i], "%c %u%%", i ? 'R' : 'L', value); }
         lv_bar_set_value(battery_bars[i], value <= 100 ? value : 0, LV_ANIM_OFF);
-        lv_obj_set_style_text_color(battery_labels[i], lv_color_hex(value > 100 ? 0x98909f :
-                                   value < 20 ? 0xffb802 : 0xddd7df), 0);
+        lv_obj_set_style_text_color(battery_labels[i],
+                                   lv_color_hex(value > 100 ? 0x98909f : 0xddd7df), 0);
+        lv_obj_set_style_bg_color(battery_bars[i],
+                                 lv_color_hex(value > 100 ? 0x98909f :
+                                              value < 20 ? 0xff6b6b :
+                                              value < 50 ? 0xffb802 : 0x7bd88f),
+                                 LV_PART_INDICATOR);
     }
 }
 
@@ -185,7 +190,7 @@ lv_obj_t *zmk_display_status_screen(void) {
     lv_obj_set_style_text_align(speed_label, LV_TEXT_ALIGN_CENTER, 0);
     for (int i = 0; i < 2; i++) {
         int x = i ? 198 : 18;
-        battery_labels[i] = text(screen, i ? "R N/A" : "L N/A", &lv_font_montserrat_12, x, 210, 0xddd7df);
+        battery_labels[i] = text(screen, i ? "R N/A" : "L N/A", &lv_font_montserrat_12, x, 210, 0x98909f);
         lv_obj_set_width(battery_labels[i], 64);
         lv_obj_set_style_text_align(battery_labels[i], i ? LV_TEXT_ALIGN_RIGHT : LV_TEXT_ALIGN_LEFT, 0);
         battery_bars[i] = lv_bar_create(screen);
@@ -194,7 +199,7 @@ lv_obj_t *zmk_display_status_screen(void) {
         lv_obj_set_size(battery_bars[i], 64, 3);
         lv_obj_set_style_bg_color(battery_bars[i], lv_color_hex(0x302a32), LV_PART_MAIN);
         lv_obj_set_style_bg_opa(battery_bars[i], LV_OPA_COVER, LV_PART_MAIN);
-        lv_obj_set_style_bg_color(battery_bars[i], lv_color_hex(0xd8a1ba), LV_PART_INDICATOR);
+        lv_obj_set_style_bg_color(battery_bars[i], lv_color_hex(0x98909f), LV_PART_INDICATOR);
         lv_obj_set_style_bg_opa(battery_bars[i], LV_OPA_COVER, LV_PART_INDICATOR);
     }
     screen_tick(NULL);
