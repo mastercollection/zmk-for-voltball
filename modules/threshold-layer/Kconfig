@@ -4,12 +4,13 @@
 if ZMK_POINTING
 
 config ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER
-    bool "Threshold-based Temporary Layer Input Processor"
+    bool "Voltball latched automatic mouse layer"
     default y
     depends on DT_HAS_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER_ENABLED
     help
-      Enable the threshold-based temporary layer input processor,
-      which activates a layer only after accumulated movement exceeds
-      a specified distance threshold.
+      Latch the mouse layer after pointer motion reaches the threshold.
+      Requires the pinned ZMK behavior hook installed by patch_auto_mouse.py.
+      Swallow the first left-hand non-modifier action to exit the layer.
+      Modifier actions remain normal; consumed releases are also swallowed.
 
 endif # ZMK_POINTING

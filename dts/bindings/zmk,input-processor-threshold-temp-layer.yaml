@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: MIT
 
 description: |
-  Input Processor for temporarily enabling a layer after input events,
-  with activation threshold based on accumulated movement distance.
+  Latched auto-mouse layer activated by accumulated pointer movement.
+  Cells are layer index and timeout (must be zero). Resolved non-modifier
+  actions at typing-positions cancel the layer without emitting press or release.
+  Requires the pinned ZMK behavior-dispatch hook.
 
 compatible: "zmk,input-processor-threshold-temp-layer"
 
@@ -14,19 +16,22 @@ properties:
     type: int
     default: 0
     description: |
-      Minimum accumulated movement distance (in pixels) required to activate the layer.
-      If 0, the layer activates immediately on any movement (same as standard temp-layer).
+      Minimum accumulated absolute X/Y sensor counts required to activate the layer.
+      Zero activates on the first nonzero motion report.
 
   require-prior-idle-ms:
     type: int
     default: 0
     description: |
-      Only activate the layer if there have not been any key presses for at least
-      the set number of milliseconds before the pointing device event.
+      Suppress activation after a non-modifier action at typing-positions.
+      A swallowed action also blocks activation until release, then restarts
+      this delay. Suppressed movement is discarded, not accumulated.
 
-  excluded-positions:
+  typing-positions:
     type: array
-    default: []
+    required: true
     description: |
-      An array of key position indices that will not trigger deactivation of the layer
-      once it is active. Useful for keeping layer active when pressing mouse buttons.
+      Physical positions whose first non-modifier action is swallowed to exit
+      auto mouse, including mouse, scroll, layer and no-op bindings. Only key
+      press/sticky modifier actions are exempt; hold-taps resolve before filtering.
+      Combos containing any of these positions follow the same rule.
