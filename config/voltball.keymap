@@ -1,6 +1,6 @@
 /*
  * SPDX-License-Identifier: MIT
- * TOTEM master b4b2073: 38 keys mapped to Voltball; main mouse/BT/scroll retained.
+ * TOTEM master b4b2073: 38 keys mapped to Voltball; Totem layer numbering; main mouse/BT/scroll retained.
  */
 
 #include <input/processors.dtsi>
@@ -78,7 +78,7 @@
         };
 
         combo10 {
-            bindings = <&mo 5>;
+            bindings = <&mo 7>;
             key-positions = <11 12>;
         };
     };
@@ -91,8 +91,8 @@
             bindings = <
                 &kp Q  &kp W  &kp E  &kp R  &kp T  &kp Y  &kp U  &kp I  &kp O  &kp P
                 &mt LGUI A  &mt LALT S  &mt LCTRL D  &mt LSHFT F  &kp G  &kp H  &mt RSHFT J  &mt RCTRL K  &mt RALT L  &mt RGUI SEMICOLON
-                &kp Z  &kp X  &kp C  &kp V  &kp B  &kp C_MUTE  &mo 4  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH
-                &kp LCTRL  &kp LGUI  &kp LALT  &lt 7 ESC  &lt 2 SPACE  &kp BACKSPACE  &lt 6 DEL  &lt 1 ENTER  &lt 3 TAB  &kp ENTER
+                &kp Z  &kp X  &kp C  &kp V  &kp B  &kp C_MUTE  &mo 6  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH
+                &kp LCTRL  &kp LGUI  &kp LALT  &lt 4 ESC  &lt 2 SPACE  &kp BACKSPACE  &lt 3 DEL  &lt 1 ENTER  &lt 5 TAB  &kp ENTER
             >;
         };
 
@@ -113,6 +113,26 @@
                 &kp LGUI  &kp LALT  &kp LALT  &kp LSHFT  &trans  &kp LEFT  &kp DOWN  &kp UP  &kp RIGHT  &trans
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &kp HOME  &kp PG_DN  &kp PG_UP  &kp END  &kp INSERT
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+            >;
+        };
+
+        function_layer {
+            display-name = "FUNC";
+            bindings = <
+                &kp SCROLLLOCK  &kp F7  &kp F8  &kp F9  &kp F11  &trans  &trans  &trans  &trans  &trans
+                &kp PRINTSCREEN  &kp F4  &kp F5  &kp F6  &kp F10  &trans  &kp LEFT_SHIFT  &kp LCTRL  &kp LEFT_ALT  &kp LGUI
+                &kp PAUSE_BREAK  &kp F1  &kp F2  &kp F3  &kp F12  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+            >;
+        };
+
+        number_layer {
+            display-name = "NUM";
+            bindings = <
+                &trans  &kp N7  &kp N8  &kp N9  &trans  &kp FSLH  &kp N7  &kp N8  &kp N9  &kp PLUS
+                &trans  &kp N4  &kp N5  &kp N6  &kp NUMBER_0  &kp STAR  &kp N4  &kp N5  &kp N6  &kp KP_COMMA
+                &trans  &kp N1  &kp N2  &kp N3  &trans  &trans  &trans  &kp MINUS  &kp N1  &kp N2  &kp N3  &kp KP_EQUAL
+                &trans  &trans  &trans  &trans  &trans  &trans  &kp KP_NUMLOCK  &kp KP_NUMBER_0  &kp KP_NUMBER_0  &trans
             >;
         };
 
@@ -144,26 +164,6 @@
 &trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                  &trans  &trans
-            >;
-        };
-
-        function_layer {
-            display-name = "FUNC";
-            bindings = <
-                &kp SCROLLLOCK  &kp F7  &kp F8  &kp F9  &kp F11  &trans  &trans  &trans  &trans  &trans
-                &kp PRINTSCREEN  &kp F4  &kp F5  &kp F6  &kp F10  &trans  &kp LEFT_SHIFT  &kp LCTRL  &kp LEFT_ALT  &kp LGUI
-                &kp PAUSE_BREAK  &kp F1  &kp F2  &kp F3  &kp F12  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-                &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-            >;
-        };
-
-        number_layer {
-            display-name = "NUM";
-            bindings = <
-                &trans  &kp N7  &kp N8  &kp N9  &trans  &kp FSLH  &kp N7  &kp N8  &kp N9  &kp PLUS
-                &trans  &kp N4  &kp N5  &kp N6  &kp NUMBER_0  &kp STAR  &kp N4  &kp N5  &kp N6  &kp KP_COMMA
-                &trans  &kp N1  &kp N2  &kp N3  &trans  &trans  &trans  &kp MINUS  &kp N1  &kp N2  &kp N3  &kp KP_EQUAL
-                &trans  &trans  &trans  &trans  &trans  &trans  &kp KP_NUMLOCK  &kp KP_NUMBER_0  &kp KP_NUMBER_0  &trans
             >;
         };
     };

@@ -118,10 +118,10 @@
     device = <&trackball_central>;
 
     /*
-     * 中文: 普通轨迹球模式。移动超过阈值后临时进入第 3 层 500ms。
-     * English: Normal trackball mode activate layer 3 for 500 ms after threshold movement.
+     * 中文: 普通轨迹球模式。移动超过阈值后临时进入第 5 层 500ms。
+     * English: Normal trackball mode activate layer 5 for 500 ms after threshold movement.
      */
-    input-processors = <&zip_threshold_temp_layer 3 500>;
+    input-processors = <&zip_threshold_temp_layer 5 500>;
 
     /*
      * 中文: 第 2 层把轨迹球移动转换为上下左右方向键。
@@ -133,11 +133,11 @@
     };
 
     /*
-     * 中文: 第 5 层启用滚动模式，把轨迹球移动转换成滚轮事件。
-     * English: Layer 5 enables scroll mode, converting trackball movement into wheel events.
+     * 中文: 第 7 层启用滚动模式，把轨迹球移动转换成滚轮事件。
+     * English: Layer 7 enables scroll mode, converting trackball movement into wheel events.
      */
     scroller {
-        layers = <5>;
+        layers = <7>;
         input-processors =
             /* 中文: 将指针移动映射为滚动事件；English: Map pointer motion to scroll events. */
             <&zip_xy_to_scroll_mapper>,
