@@ -1,47 +1,46 @@
-# Voltball ZMK Config
+# Voltball + Prospector
 
-Voltball is an AA-powered 3x5 split ZMK keyboard using nice!nano v2 controllers. The right half includes a PAW3222 trackball.
+Voltball 양쪽(nice!nano v2)은 BLE peripheral, Prospector(XIAO nRF52840)는 central이며 PC에는 Prospector USB로 연결한다. 오른쪽 PAW3222 센서 입력을 BLE로 전달하고 central에서 자동 MOUSE, 방향키, 스크롤을 처리한다.
 
-![Voltball keymap](keymap-drawer/voltball.svg)
+[검증된 Actions 실행](https://github.com/mastercollection/zmk-for-voltball/actions/runs/40513302937)에서 정상 펌웨어 3개와 settings_reset 3개가 성공했다. 실물 동작 검증은 별도다.
 
-Current assumptions:
+- [빌드 결과, 소스/모듈 SHA, UF2 체크섬](BUILD_REPORT.md)
+- [백업·플래싱·왼쪽 우선 페어링·Studio 복원·복구·실물 검증](FLASHING_AND_VALIDATION.md)
+- [카운터 리뷰와 수정 근거](COUNTER_REVIEW.md)
 
-- Split layout with 42 keys total
-- Logical matrix is `4x12`
-- Each half scans `4x6`
-- Right half includes a PAW3222 trackball
-- Battery is `AA` and uses `zmk-feature-non-lipo-battery-management`
+## 다운로드
 
-Files of interest:
+Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evidence.zip`은 설정·devicetree·모듈 버전 등의 검증 자료이며 장치에 복사하지 않는다.
 
-- `build.yaml`: build targets for `voltball_left` and `voltball_right`
-- `boards/shields/voltball`: shield definition
-- `config/voltball.keymap`: keymap with base, number, symbol, function, and Bluetooth layers
-- `config/voltball.json`: keymap-drawer layout metadata
-- `keymap_drawer.config.yaml`: keymap-drawer rendering config
+- Prospector: `prospector.uf2`
+- 왼쪽 Voltball: `voltball_left.uf2`
+- 오른쪽 Voltball: `voltball_right.uf2`
+- 각 `*_settings_reset.uf2`: 초기화가 필요할 때 먼저 넣은 뒤 정상 펌웨어를 다시 넣는다.
 
-Battery notes:
+공개 배포 ZIP은 [Releases](https://github.com/mastercollection/zmk-for-voltball/releases)에서 받는다. GitHub가 자동 제공하는 Source code ZIP은 설치용 펌웨어가 아니다.
 
-- Default ZMK `vbatt` is disabled in favor of `zmk,non-lipo-battery`
-- `config/west.yml` includes `zmk-feature-non-lipo-battery-management`
+## 구성
 
-Typical build examples:
+- 검증한 ZMK main SHA 고정. v0.3 미사용.
+- main `2eda3c9`의 42키 바인딩, 8개 레이어, hold-tap, 10개 combo를 보존한다.
+- 레이어 순서: BASE 0 / SYM 1 / NAVI 2 / FUNC 3 / NUM 4 / MOUSE 5 / BT 6 / SCROLL 7.
+- B 오른쪽: 음소거. N 왼쪽: BT 순간 활성화. S+D 콤보: SCROLL 순간 활성화.
+- 맨 아래 왼쪽에서 두 번째(index 33): GUI. 그 오른쪽(index 34): Alt. 기존 main과 동일하게 Studio unlock 키는 없다.
+- PAW3222: 오른쪽 SPI/IRQ 유지, 950 CPI. 자동 MOUSE 임계값 100 / 500ms, NAVI에서 방향키, SCROLL에서 반전 Y·1/10 배율.
+- Prospector: 240×280 LCD, 고정 밝기 50%, 조도 센서 및 해당 I2C 비활성화. 터치 UI 없음.
+- 화면: 280×240 가로 배치, 타이핑 캐릭터, 기본 모디파이어, Caps/NumLock, WPM, 양쪽 배터리. 배터리 막대는 50% 이상 녹색, 20~49% 앰버, 20% 미만 빨강. 첫 보고 전 N/A.
+- AA/저전압/5분 광고 절전/GPIO 설정은 Voltball 양쪽에만 적용.
+- USB Studio는 Prospector에서만 활성화하며 잠금 사용. 키 바인딩 편집·저장은 지원하지만 물리 좌표 변경은 소스 수정 및 재빌드가 필요하다.
 
-```sh
-west init -l config
-west update
-west zephyr-export
-west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=voltball_left
-west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=voltball_right -DSNIPPET=studio-rpc-usb-uart
-```
+![키맵](keymap-drawer/voltball.svg)
 
-## ZMK Studio
+## 파일
 
-The right half is the split central and its build enables ZMK Studio over USB
-with the `studio-rpc-usb-uart` snippet. The left half remains a normal split
-peripheral build. Studio locking is disabled so the keymap can be edited
-without assigning a dedicated unlock binding.
+- `config/voltball.keymap`: 키맵 및 hold-tap/combos.
+- `config/boards/shields/voltball/voltball-layout.dtsi`: 42키 물리 좌표 및 transform.
+- 같은 디렉터리의 left/right/dongle `.conf`, `.overlay`: 장치 역할과 하드웨어 설정.
+- `modules/`: 고정 원본과 호환 패치를 포함한 배터리/자동 레이어 모듈.
+- `config/west.yml`: 외부 모듈 SHA. 전체 활성 의존성은 `verification/40513302937/west-frozen.yml`.
+- `build.yaml`, `.github/workflows/build*.yml`: GitHub Actions 전용 6개 빌드 및 검증 자료 저장.
 
-Flash both halves with their matching firmware, connect the right half over
-USB, and open [ZMK Studio](https://zmk.studio/). The physical layout metadata in
-the shield definition allows Studio to display and edit all 42 key positions.
+펌웨어 빌드는 GitHub Actions로 수행한다. `python tests/check_mapping.py`는 소스 이식 검사이며 펌웨어를 빌드하지 않는다.

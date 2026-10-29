@@ -1,0 +1,59 @@
+#include <input/processors.dtsi>
+#include <input/processors/zmk-input-processor-keybind.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/input_transform.h>
+/ {
+    
+    zip_threshold_temp_layer: input_processor_threshold_temp_layer {
+        compatible = "zmk,input-processor-threshold-temp-layer";
+        #input-processor-cells = <2>;
+        
+        activation-threshold = <100>;
+        
+        require-prior-idle-ms = <0>;
+        
+        excluded-positions = <>;
+    };
+
+    
+    zip_trackball_arrows: zip_trackball_arrows {
+        compatible = "zmk,input-processor-keybind";
+        #input-processor-cells = <0>;
+        track_remainders;
+        mode = <1>;
+        bindings = <&kp RIGHT>,
+                   <&kp LEFT>,
+                   <&kp UP>,
+                   <&kp DOWN>;
+        tick = <12>;
+        wait-ms = <0>;
+        tap-ms = <8>;
+        max_pending_activations = <10>;
+    };
+};
+
+&trackball_central_listener {
+    status = "okay";
+    device = <&trackball_split>;
+
+    
+    input-processors = <&zip_threshold_temp_layer 5 500>;
+
+    
+    arrows {
+        layers = <2>;
+        input-processors = <&zip_trackball_arrows>;
+    };
+
+    
+    scroller {
+        layers = <7>;
+        input-processors =
+            
+            <&zip_xy_to_scroll_mapper>,
+            
+            <&zip_scroll_transform INPUT_TRANSFORM_Y_INVERT>,
+            
+            <&zip_scroll_scaler 1 10>;
+    };
+};

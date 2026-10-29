@@ -1,0 +1,3 @@
+/* Apply after the upstream adapter overlay: no ambient sensor is fitted. */
+&apds9960 { status = "disabled"; };
+&i2c1 { status = "disabled"; };

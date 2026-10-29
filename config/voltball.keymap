@@ -19,6 +19,9 @@
 
 &lt { quick-tap-ms = <185>; };
 
+/* Keep manually held layers active until release on the pinned ZMK API. */
+&mo { locking; };
+
 / {
     combos {
         compatible = "zmk,combos";

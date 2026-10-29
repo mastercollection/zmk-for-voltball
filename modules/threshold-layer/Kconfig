@@ -1,0 +1,15 @@
+# Copyright (c) 2024 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+if ZMK_POINTING
+
+config ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER
+    bool "Threshold-based Temporary Layer Input Processor"
+    default y
+    depends on DT_HAS_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER_ENABLED
+    help
+      Enable the threshold-based temporary layer input processor,
+      which activates a layer only after accumulated movement exceeds
+      a specified distance threshold.
+
+endif # ZMK_POINTING
