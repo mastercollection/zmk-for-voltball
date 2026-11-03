@@ -1,7 +1,14 @@
-/* TOTEM master b4b2073e35f1db04ca3ac4ba82a5520a55df16de; approved 38-to-42 mapping. */
+/*
+ * SPDX-License-Identifier: MIT
+ * TOTEM master b4b2073: 38 keys mapped to Voltball; Totem layer numbering; main mouse/BT/scroll retained.
+ */
 
+#include <input/processors.dtsi>
+#include <dt-bindings/zmk/input_transform.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/pointing.h>
 
 &mt {
@@ -12,7 +19,7 @@
 
 &lt { quick-tap-ms = <185>; };
 
-/* Manual holds own the layer until release; auto-pointer timeout cannot cancel them. */
+/* Keep manually held layers active until release on the pinned ZMK API. */
 &mo { locking; };
 
 / {
@@ -72,19 +79,23 @@
             key-positions = <18 17>;
             timeout-ms = <20>;
         };
+
+        combo10 {
+            bindings = <&mo 7>;
+            key-positions = <11 12>;
+        };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
         base_layer {
-
             display-name = "BASE";
             bindings = <
                 &kp Q  &kp W  &kp E  &kp R  &kp T  &kp Y  &kp U  &kp I  &kp O  &kp P
                 &mt LGUI A  &mt LALT S  &mt LCTRL D  &mt LSHFT F  &kp G  &kp H  &mt RSHFT J  &mt RCTRL K  &mt RALT L  &mt RGUI SEMICOLON
-                &kp Z  &kp X  &kp C  &kp V  &kp B  &mo 5  &mo 6  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH
-                &kp LCTRL  &studio_unlock  &none  &lt 4 ESC  &lt 2 SPACE  &kp BACKSPACE  &lt 3 DEL  &lt 1 ENTER  &lt 5 TAB  &kp ENTER
+                &kp Z  &kp X  &kp C  &kp V  &kp B  &kp C_MUTE  &mo 6  &kp N  &kp M  &kp COMMA  &kp DOT  &kp FSLH
+                &kp LCTRL  &kp LGUI  &kp LALT  &lt 4 ESC  &lt 2 SPACE  &kp BACKSPACE  &lt 3 DEL  &lt 1 ENTER  &lt 5 TAB  &kp ENTER
             >;
         };
 
@@ -96,7 +107,6 @@
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &kp LS(PLUS)  &kp LS(EXCL)  &kp LS(AT)  &kp LS(POUND)  &kp LS(TILDE)
                 &trans  &trans  &trans  &trans  &kp MINUS  &kp LS(MINUS)  &trans  &trans  &trans  &trans
             >;
-
         };
 
         nav_layer {
@@ -107,7 +117,6 @@
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &kp HOME  &kp PG_DN  &kp PG_UP  &kp END  &kp INSERT
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             >;
-
         };
 
         function_layer {
@@ -118,7 +127,6 @@
                 &kp PAUSE_BREAK  &kp F1  &kp F2  &kp F3  &kp F12  &trans  &trans  &trans  &trans  &trans  &trans  &trans
                 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             >;
-
         };
 
         number_layer {
@@ -129,22 +137,37 @@
                 &trans  &kp N1  &kp N2  &kp N3  &trans  &trans  &trans  &kp MINUS  &kp N1  &kp N2  &kp N3  &kp KP_EQUAL
                 &trans  &trans  &trans  &trans  &trans  &trans  &kp KP_NUMLOCK  &kp KP_NUMBER_0  &kp KP_NUMBER_0  &trans
             >;
-
         };
 
-        mouse_layer {
-            display-name = "MOUSE";
+        MOUSE {
             bindings = <
-                &trans  &msc SCRL_UP  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-                &msc SCRL_LEFT  &msc SCRL_DOWN  &msc SCRL_RIGHT  &trans  &trans  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_UP  &mmv MOVE_RIGHT  &trans
-                &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-                &trans  &trans  &trans  &mkp MCLK  &mkp LCLK  &mkp RCLK  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans                           &trans    &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &trans                           &trans    &mkp MB4  &mkp MB3  &mkp MB5  &trans
+&trans  &trans  &trans  &trans  &trans     &trans      &trans    &trans    &trans    &trans    &trans    &trans
+&trans  &trans  &trans  &trans  &kp LCTRL  &trans      &mkp MB2  &mkp MB1                      &trans    &trans
             >;
+
+            display-name = "MOUSE";
         };
 
-        scroll_layer {
-            display-name = "SCROLL";
-            bindings = <&trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans &trans>;
+        BT {
+            bindings = <
+&kp F1  &trans  &trans  &trans  &trans                      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &trans
+&trans  &trans  &trans  &trans  &trans                      &trans        &trans        &trans        &trans        &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans        &trans        &trans        &trans        &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                                    &trans        &trans
+            >;
+
+            display-name = "BT";
+        };
+
+        SCROLL {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans                      &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                  &trans  &trans
+            >;
         };
     };
 };

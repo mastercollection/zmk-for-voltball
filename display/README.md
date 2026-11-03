@@ -9,6 +9,9 @@ on the right; left/right batteries and WPM at the bottom. No USB indicator.
   last non-modifier key-down. Frame interval is 120–50 ms based on ZMK WPM.
 - Battery labels show OFF when disconnected and N/A until an actual report.
   Pair left first, then right, as with the existing Prospector configuration.
+- Battery bars are green (#7BD88F) at 50–100%, amber (#FFB802) at 20–49%,
+  and red (#FF6B6B) below 20%. Numeric labels stay neutral (#DDD7DF);
+  OFF/N/A labels use gray (#98909F).
 - Default landscape orientation is retained. Flip the existing
   CONFIG_PROSPECTOR_ROTATE_DISPLAY_180 option for the opposite mounting direction.
 
