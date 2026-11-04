@@ -1,3 +1,4 @@
 rsource "modules/non-lipo/Kconfig"
 rsource "modules/threshold-layer/Kconfig"
 rsource "modules/pointer-mode/Kconfig"
+rsource "modules/trackball-wake/Kconfig"

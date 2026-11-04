@@ -39,6 +39,7 @@ for name in names:
         assert conf["CONFIG_ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT"] == "300000"
         assert conf["CONFIG_ZMK_IDLE_SLEEP_TIMEOUT"] == "7200000"
         assert on("PAW3222") == (name == "voltball_right")
+        assert on("VOLTBALL_TRACKBALL_WAKE") == (name == "voltball_right")
         assert on("ZMK_INPUT_SPLIT") == (name == "voltball_right")
     report[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 assert len(list(root.glob("*.uf2"))) == 6
