@@ -50,6 +50,14 @@ lines.append('};')
 (layout / "mascot_assets.c").write_text('\n'.join(lines) + '\n')
 # Keep the actual default modifier widget, including its ordering and OS symbols.
 # The new screen does not need the old roller/battery/output widgets or their fonts.
+# Caps-word is shown on the Caps box by status_screen.c; the Shift symbol then
+# reflects only a held Shift instead of also lighting for caps-word.
+mods_path = layout / "modifier_indicator.c"
+mods_source = mods_path.read_text()
+old = "        .caps_word = caps_word_active,"
+if mods_source.count(old) != 1:
+    raise SystemExit("Unexpected modifier widget source; review caps-word patch before building")
+mods_path.write_text(mods_source.replace(old, "        .caps_word = false,"))
 cmake = module / "boards/shields/prospector_adapter/CMakeLists.txt"
 source = cmake.read_text()
 old = 'file(GLOB layout_sources src/layouts/classic/*.c)'
