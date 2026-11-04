@@ -4,10 +4,12 @@ static void move(int32_t delta) {
     assert(threshold_handle_event(&mock_device, &event, 5, 0, NULL) == 0);
 }
 
+/* The filter never consumes; returns false so call sites read as "delivered". */
 static bool filter(const struct device *behavior, uint32_t position, uint32_t key, bool press) {
     struct zmk_behavior_binding binding = {NULL, key, 0};
     struct zmk_behavior_binding_event event = {position};
-    return voltball_auto_mouse_filter(behavior, &binding, event, press);
+    voltball_auto_mouse_filter(behavior, &binding, event, press);
+    return false;
 }
 
 static int typing_calls;
@@ -36,13 +38,14 @@ static void activate(void) {
 
 int main(void) {
     (void)threshold_api;
-    /* Before any pointer event the mouse layer is unknown: nothing exits. */
+    /* The mouse layer comes from devicetree: with it off, every key is typing,
+     * even before any pointer event and even keys bound on the mouse layer. */
     memset(&data, 0, sizeof(data));
     mock_device.config = &config;
     mock_device.data = &data;
     assert(threshold_init(&mock_device) == 0);
     mouse_layer();
-    assert(!is_exit_key(data.mouse_layer, 0));
+    assert(is_exit_key(5, 0) && is_exit_key(5, 36) && is_exit_key(5, 8));
 
     activate();
     fake_now += 3600000;
@@ -138,11 +141,8 @@ int main(void) {
     assert(threshold_handle_event(&mock_device, &wheel, 5, 500, NULL) == -EINVAL);
     assert(threshold_handle_event(&mock_device, &wheel, 256, 0, NULL) == -EINVAL);
 
-    /* Wheel events still record the mouse layer (scroll mode before any pointer motion). */
-    memset(&data, 0, sizeof(data));
-    assert(threshold_init(&mock_device) == 0);
-    assert(threshold_handle_event(&mock_device, &wheel, 5, 0, NULL) == 0);
-    assert(data.mouse_layer == 5);
+    /* A listener cell that disagrees with mouse-layer is rejected. */
+    assert(threshold_handle_event(&mock_device, &wheel, 4, 0, NULL) == -EINVAL);
 
     /* Pointer mode hears every exit-key press, with or without auto mouse. */
     voltball_auto_mouse_set_typing_callback(count_typing);
@@ -152,8 +152,12 @@ int main(void) {
     assert(!filter(&device_kp, 0, 20, false) && typing_calls == 1);
     assert(!filter(&device_kp, 0, 20, true) && typing_calls == 2);
     assert(!filter(&device_kp, 32, (7u << 16) | 0xe0, true) && typing_calls == 2);
-    assert(!filter(&device_click, 36, 1, true) && typing_calls == 2);
+    /* Mouse layer off: thumbs that are buttons on MOUSE still count as typing. */
+    assert(!filter(&device_kp, 36, 44, true) && typing_calls == 3);
+    /* Mouse layer on: its buttons do not. */
+    activate();
+    assert(!filter(&device_click, 36, 1, true) && typing_calls == 3);
     voltball_auto_mouse_set_typing_callback(NULL);
-    puts("PASS: actual driver: &trans exits and types, buttons stay, modifiers, hold-tap, combos, live keymap, cooldown, locks, typing callback");
+    puts("PASS: actual driver: &trans exits and types, buttons stay, modifiers, hold-tap, combos, live keymap, cooldown, locks, typing callback, layer-off typing");
     return 0;
 }

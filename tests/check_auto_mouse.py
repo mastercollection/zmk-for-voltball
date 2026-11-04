@@ -23,8 +23,8 @@ else:
     original = "void press() {\n" + ANCHOR + "\n}\n"
 patched = patch_source(original)
 assert patched.replace(HOOK, "") == original
-assert patched.index("if (voltball_auto_mouse_filter(behavior, &binding, event, pressed))") < patched.index(ANCHOR)
-assert "return ZMK_BEHAVIOR_OPAQUE;" in HOOK
+assert patched.index("voltball_auto_mouse_filter(behavior, &binding, event, pressed);") < patched.index(ANCHOR)
+assert "return" not in HOOK
 for invalid in (patched, "", original + ANCHOR):
     try:
         patch_source(invalid)

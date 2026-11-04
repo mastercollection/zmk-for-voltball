@@ -37,6 +37,8 @@ PREAMBLE = r"""
 #define ZMK_KEYMAP_LEN 42
 #define prop_activation_threshold 100
 #define prop_require_prior_idle_ms 200
+#define prop_mouse_layer 5
+#define DEVICE_DT_NAME(n) #n
 #define DT_PROP_LEN(n, p) 2
 #define DT_PROP(n, p) props_##n
 #define props_left {2, 3}
@@ -88,9 +90,6 @@ static struct zmk_behavior_binding mouse_bindings[42];
 static const struct zmk_behavior_binding *zmk_keymap_get_layer_binding_at_idx(uint8_t layer,
                                                                              uint32_t pos) {
     return layer == 5 && pos < 42 ? &mouse_bindings[pos] : NULL;
-}
-static const struct device *zmk_behavior_get_binding(const char *name) {
-    return name && strcmp(name, "trans") == 0 ? &device_trans : &device_click;
 }
 static bool is_mod(uint16_t page, uint32_t key) {
     return page == HID_USAGE_KEY && key >= 0xe0 && key <= 0xe7;
