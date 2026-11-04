@@ -65,7 +65,7 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 
 - 키를 누른 순간부터 `adv seen`까지는 동글이 볼 수 없다. 체감 지연(스톱워치)에서 `first key`의 ms를 빼면 반쪽의 재부팅·광고 시작 시간이 나온다.
 - `adv seen`→`connected`가 길면 스캔/광고 타이밍, `connected`→`first key`가 길면 암호화·서비스 탐색·구독 쪽이다.
-- 로그 단계는 ZMK 기본(DBG)이라 다른 줄이 많다. 진단이 끝나면 평소 `prospector.uf2`로 되돌린다.
+- 플래시 용량 때문에 DBG 로그는 빼고 INF 이상만 남긴다. 진단이 끝나면 평소 `prospector.uf2`로 되돌린다.
 
 ## 실물 검증표
 

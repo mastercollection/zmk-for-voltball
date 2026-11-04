@@ -25,6 +25,8 @@ for name in names:
     elif name.startswith("prospector"):
         trace = name == "prospector_wake_trace"
         assert on("VOLTBALL_WAKE_TRACE") == trace and on("ZMK_USB_LOGGING") == trace, name
+        if trace:
+            assert conf["CONFIG_LOG_MAX_LEVEL"] == "3", name
         assert on("ZMK_SPLIT_ROLE_CENTRAL") and on("ZMK_INPUT_SPLIT")
         assert conf["CONFIG_ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS"] == "2"
         assert not on("ZMK_STUDIO")
