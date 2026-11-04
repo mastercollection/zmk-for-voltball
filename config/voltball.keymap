@@ -113,10 +113,10 @@
         nav_layer {
             display-name = "NAVI";
             bindings = <
-&trans    &trans    &trans    &trans     &trans                      &trans    &trans     &trans     &trans     &trans
-&kp LGUI  &kp LALT  &kp LALT  &kp LSHFT  &trans                      &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &trans
-&trans    &trans    &trans    &trans     &trans  &trans      &trans  &kp HOME  &kp PG_DN  &kp PG_UP  &kp END    &kp INSERT
-&trans    &trans    &trans    &trans     &trans  &trans      &trans  &trans                          &trans     &trans
+&trans    &trans    &trans     &trans     &trans                      &trans    &trans     &trans     &trans     &trans
+&kp LGUI  &kp LALT  &kp LCTRL  &kp LSHFT  &trans                      &kp LEFT  &kp DOWN   &kp UP     &kp RIGHT  &trans
+&trans    &trans    &trans     &trans     &trans  &trans      &trans  &kp HOME  &kp PG_DN  &kp PG_UP  &kp END    &kp INSERT
+&trans    &trans    &trans     &trans     &trans  &trans      &trans  &trans                          &trans     &trans
             >;
         };
 
@@ -142,10 +142,10 @@
 
         MOUSE {
             bindings = <
-&trans  &trans  &trans  &trans  &trans                           &trans    &trans    &trans    &trans    &trans
-&trans  &trans  &trans  &trans  &trans                           &trans    &mkp MB4  &mkp MB3  &mkp MB5  &trans
-&trans  &trans  &trans  &trans  &trans     &trans      &trans    &trans    &trans    &trans    &trans    &trans
-&trans  &trans  &trans  &trans  &kp LCTRL  &trans      &mkp MB2  &mkp MB1                      &trans    &trans
+&trans  &trans  &trans  &trans    &trans                            &trans    &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans    &trans                            &trans    &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans    &trans    &trans        &trans    &trans    &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &mkp MB3  &mkp MB2  &mkp MB1      &mkp MB4  &mkp MB5                  &trans  &trans
             >;
 
             display-name = "MOUSE";
