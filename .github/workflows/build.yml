@@ -17,6 +17,10 @@ jobs:
           python3 tests/auto_mouse_driver_test.py
           cc -std=c11 -Wall -Wextra -Werror tests/auto_mouse_test.c -o /tmp/auto-mouse-test
           /tmp/auto-mouse-test
+      - name: Check pointer speed and scroll mode
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror tests/pointer_mode_test.c -o /tmp/pointer-mode-test
+          /tmp/pointer-mode-test
       - name: Check mascot input and animation rules
         run: |
           cc -std=c11 -Wall -Wextra -Werror tests/mascot_logic_test.c -o /tmp/mascot-test

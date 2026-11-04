@@ -7,6 +7,7 @@
 #include <drivers/input_processor.h>
 #include <zmk/keymap.h>
 #include <zmk/keys.h>
+#include <zmk/matrix.h>
 #include <zmk/behavior.h>
 #include <zmk/virtual_key_position.h>
 #include "auto_mouse_state.h"
@@ -21,51 +22,39 @@ struct threshold_config {
 struct threshold_data {
     struct k_mutex lock;
     struct auto_mouse_state layers[ZMK_KEYMAP_LAYERS_LEN];
-    /* Match the resolved child behavior, not its enclosing hold-tap. */
-    const struct device *swallowed[ZMK_VIRTUAL_KEY_POSITION_COMBO(ZMK_COMBOS_LEN)];
-    uint32_t swallowed_count;
+    /* Layer index from the listener cell; exit keys are read from its bindings. */
+    int mouse_layer;
 };
-static const uint32_t typing_positions[] = DT_INST_PROP(0, typing_positions);
 
 /* Match pinned ZMK combo.c ordering: ascending key count, then devicetree order. */
 #if DT_HAS_COMPAT_STATUS_OKAY(zmk_combos)
-struct typing_combo {
+struct exit_combo {
     const uint32_t *positions;
     size_t count;
 };
-#define TYPING_COMBO(n, length) \
+#define EXIT_COMBO(n, length) \
     COND_CODE_1(IS_EQ(DT_PROP_LEN(n, key_positions), length), \
                 ({.positions = (const uint32_t[])DT_PROP(n, key_positions), \
                   .count = DT_PROP_LEN(n, key_positions)},), ())
-#define TYPING_COMBOS_BY_LENGTH(length, unused) \
-    DT_FOREACH_CHILD_VARGS(DT_INST(0, zmk_combos), TYPING_COMBO, length)
-static const struct typing_combo typing_combos[] = {
-    LISTIFY(20, TYPING_COMBOS_BY_LENGTH, (), 0)};
+#define EXIT_COMBOS_BY_LENGTH(length, unused) \
+    DT_FOREACH_CHILD_VARGS(DT_INST(0, zmk_combos), EXIT_COMBO, length)
+static const struct exit_combo exit_combos[] = {
+    LISTIFY(20, EXIT_COMBOS_BY_LENGTH, (), 0)};
 #endif
 
-static bool is_typing_position(uint32_t position) {
-    for (size_t i = 0; i < ARRAY_SIZE(typing_positions); i++) {
-        if (typing_positions[i] == position) {
-            return true;
-        }
-    }
-#if DT_HAS_COMPAT_STATUS_OKAY(zmk_combos)
-    uint32_t combo_start = ZMK_VIRTUAL_KEY_POSITION_COMBO(0);
-    if (position >= combo_start && position - combo_start < ARRAY_SIZE(typing_combos)) {
-        const struct typing_combo *combo = &typing_combos[position - combo_start];
-        for (size_t i = 0; i < combo->count; i++) {
-            for (size_t j = 0; j < ARRAY_SIZE(typing_positions); j++) {
-                if (combo->positions[i] == typing_positions[j]) {
-                    return true;
-                }
-            }
-        }
-    }
-#endif
-    return false;
+/* Notified on each exit-key non-modifier press, whether or not auto mouse was on. */
+static void (*typing_callback)(const struct device *behavior);
+
+void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior)) {
+    typing_callback = callback;
 }
 
 #define MATCH_DEVICE(n) || behavior == DEVICE_DT_GET(n)
+static bool is_transparent_behavior(const struct device *behavior) {
+    return behavior != NULL &&
+           (false DT_FOREACH_STATUS_OKAY(zmk_behavior_transparent, MATCH_DEVICE));
+}
+
 static bool is_deferred_behavior(const struct device *behavior) {
     /* Transparent bindings must fall through; hold-taps must resolve first. */
     return false DT_FOREACH_STATUS_OKAY(zmk_behavior_transparent, MATCH_DEVICE)
@@ -84,58 +73,66 @@ static bool is_modifier_behavior(const struct device *behavior, uint32_t encoded
 }
 #undef MATCH_DEVICE
 
-/* Called before behavior dispatch on both press and release. Returning true
- * consumes the action. A consumed child release must not skip hold-tap cleanup.
+/* A key exits auto mouse when it is &trans on the mouse layer, so anything
+ * placed there (buttons, &ptr) keeps working. Reads the live keymap, so Studio
+ * edits apply. A combo exits when any of its keys would.
+ */
+static bool is_exit_key(int layer, uint32_t position) {
+    if (layer < 0) {
+        return false;
+    }
+    if (position < ZMK_KEYMAP_LEN) {
+        const struct zmk_behavior_binding *binding = zmk_keymap_get_layer_binding_at_idx(
+            zmk_keymap_layer_index_to_id(layer), position);
+        return binding != NULL &&
+               is_transparent_behavior(zmk_behavior_get_binding(binding->behavior_dev));
+    }
+#if DT_HAS_COMPAT_STATUS_OKAY(zmk_combos)
+    uint32_t combo_start = ZMK_VIRTUAL_KEY_POSITION_COMBO(0);
+    if (position >= combo_start && position - combo_start < ARRAY_SIZE(exit_combos)) {
+        const struct exit_combo *combo = &exit_combos[position - combo_start];
+        for (size_t i = 0; i < combo->count; i++) {
+            if (combo->positions[i] < ZMK_KEYMAP_LEN && is_exit_key(layer, combo->positions[i])) {
+                return true;
+            }
+        }
+    }
+#endif
+    return false;
+}
+
+/* Called before behavior dispatch on both press and release. Never consumes:
+ * an exit key ends auto mouse and still types, as on QMK Keyball.
  */
 bool voltball_auto_mouse_filter(const struct device *behavior,
                                 const struct zmk_behavior_binding *binding,
                                 struct zmk_behavior_binding_event event, bool pressed) {
-    uint32_t position = event.position;
-    if (!is_typing_position(position)) {
+    if (!pressed || is_deferred_behavior(behavior) ||
+        is_modifier_behavior(behavior, binding->param1)) {
         return false;
     }
     const struct device *dev = DEVICE_DT_INST_GET(0);
     const struct threshold_config *cfg = dev->config;
     struct threshold_data *data = dev->data;
     k_mutex_lock(&data->lock, K_FOREVER);
-    if (position >= ARRAY_SIZE(data->swallowed)) {
+    if (!is_exit_key(data->mouse_layer, event.position)) {
         k_mutex_unlock(&data->lock);
         return false;
     }
     int64_t now = k_uptime_get();
-    if (data->swallowed[position] == behavior) {
-        if (!pressed) {
-            data->swallowed[position] = NULL;
-            data->swallowed_count--;
-            for (int i = 0; i < ZMK_KEYMAP_LAYERS_LEN; i++) {
-                data->layers[i].blocked_until = now + cfg->idle_ms;
-            }
-        }
-        k_mutex_unlock(&data->lock);
-        return true;
-    }
-    if (!pressed || is_deferred_behavior(behavior) ||
-        is_modifier_behavior(behavior, binding->param1)) {
-        k_mutex_unlock(&data->lock);
-        return false;
-    }
-
-    bool consume = false;
     for (int i = 0; i < ZMK_KEYMAP_LAYERS_LEN; i++) {
         zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(i);
         bool active = data->layers[i].active && zmk_keymap_layer_active(id);
         auto_mouse_typing(&data->layers[i], now, cfg->idle_ms);
         if (active) {
-            consume = true;
             zmk_keymap_layer_deactivate(id, false);
         }
     }
-    if (consume) {
-        data->swallowed[position] = behavior;
-        data->swallowed_count++;
-    }
     k_mutex_unlock(&data->lock);
-    return consume;
+    if (typing_callback) {
+        typing_callback(behavior);
+    }
+    return false;
 }
 
 static int threshold_handle_event(const struct device *dev, struct input_event *event,
@@ -145,21 +142,23 @@ static int threshold_handle_event(const struct device *dev, struct input_event *
     if (layer >= ZMK_KEYMAP_LAYERS_LEN || timeout != 0) {
         return -EINVAL;
     }
-    if (event->type != INPUT_EV_REL ||
-        (event->code != INPUT_REL_X && event->code != INPUT_REL_Y)) {
-        return ZMK_INPUT_PROC_CONTINUE;
-    }
     const struct threshold_config *cfg = dev->config;
     struct threshold_data *data = dev->data;
     k_mutex_lock(&data->lock, K_FOREVER);
+    /* Recorded for every event, including scroll-mode wheel events. */
+    data->mouse_layer = (int)layer;
+    if (event->type != INPUT_EV_REL ||
+        (event->code != INPUT_REL_X && event->code != INPUT_REL_Y)) {
+        k_mutex_unlock(&data->lock);
+        return ZMK_INPUT_PROC_CONTINUE;
+    }
     struct auto_mouse_state *s = &data->layers[layer];
     zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(layer);
     if (s->active && !zmk_keymap_layer_active(id)) {
         s->active = false;
         s->distance = 0;
     }
-    if (data->swallowed_count == 0 &&
-        auto_mouse_motion(s, event->value, k_uptime_get(), cfg->threshold)) {
+    if (auto_mouse_motion(s, event->value, k_uptime_get(), cfg->threshold)) {
         zmk_keymap_layer_activate(id, false);
     }
     k_mutex_unlock(&data->lock);
@@ -168,6 +167,7 @@ static int threshold_handle_event(const struct device *dev, struct input_event *
 static int threshold_init(const struct device *dev) {
     struct threshold_data *data = dev->data;
     k_mutex_init(&data->lock);
+    data->mouse_layer = -1;
     return 0;
 }
 static const struct zmk_input_processor_driver_api threshold_api = {

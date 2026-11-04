@@ -5,10 +5,10 @@ from patch_auto_mouse import patch_source, ANCHOR, HOOK
 
 ROOT = Path(__file__).resolve().parents[1]
 config = (ROOT / "config/boards/shields/voltball/voltball-trackball-processing.dtsi").read_text()
-positions = list(map(int, re.search(r"typing-positions\s*=\s*<(.*?)>", config, re.S)[1].split()))
-layout = (ROOT / "config/boards/shields/voltball/voltball-layout.dtsi").read_text()
-columns = [int(col) for _, col in re.findall(r"RC\((\d+),(\d+)\)", layout)]
-assert positions == [i for i, col in enumerate(columns) if col < 6]
+# Exit keys come from the MOUSE layer's &trans bindings, not a position list.
+assert "typing-positions" not in config
+driver = (ROOT / "modules/threshold-layer/src/input_processor_threshold_temp_layer.c").read_text()
+assert "zmk_keymap_get_layer_binding_at_idx" in driver
 assert "<&zip_threshold_temp_layer 5 0>" in config
 assert "require-prior-idle-ms = <200>" in config
 schemas = [ROOT / "dts/bindings/zmk,input-processor-threshold-temp-layer.yaml",
@@ -32,4 +32,4 @@ for invalid in (patched, "", original + ANCHOR):
         pass
     else:
         raise AssertionError("Patch must reject drift or duplicate application")
-print("PASS: physical left half, persistent mode, matching schemas, guarded behavior filter")
+print("PASS: &trans exit keys, persistent mode, matching schemas, guarded behavior filter")

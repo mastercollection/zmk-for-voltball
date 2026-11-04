@@ -8,8 +8,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 src = ROOT / "modules/threshold-layer/src"
-config_text = (ROOT / "config/boards/shields/voltball/voltball-trackball-processing.dtsi").read_text()
-positions = re.search(r"typing-positions\s*=\s*<(.*?)>", config_text, re.S)[1].split()
 PREAMBLE = r"""
 #include <assert.h>
 #include <stdbool.h>
@@ -36,7 +34,7 @@ PREAMBLE = r"""
 #define DT_HAS_COMPAT_STATUS_OKAY(x) 1
 #define DT_INST(n, compat) n
 #define DT_INST_PROP(n, p) prop_##p
-#define prop_typing_positions {POSITIONS}
+#define ZMK_KEYMAP_LEN 42
 #define prop_activation_threshold 100
 #define prop_require_prior_idle_ms 200
 #define DT_PROP_LEN(n, p) 2
@@ -85,6 +83,15 @@ static int zmk_keymap_layer_deactivate(uint8_t i, bool lock) {
     if (!locked_layers[i] || lock) active_layers[i] = false;
     return 0;
 }
+/* Mouse layer bindings by position; "trans" marks an exit key. */
+static struct zmk_behavior_binding mouse_bindings[42];
+static const struct zmk_behavior_binding *zmk_keymap_get_layer_binding_at_idx(uint8_t layer,
+                                                                             uint32_t pos) {
+    return layer == 5 && pos < 42 ? &mouse_bindings[pos] : NULL;
+}
+static const struct device *zmk_behavior_get_binding(const char *name) {
+    return name && strcmp(name, "trans") == 0 ? &device_trans : &device_click;
+}
 static bool is_mod(uint16_t page, uint32_t key) {
     return page == HID_USAGE_KEY && key >= 0xe0 && key <= 0xe7;
 }
@@ -95,7 +102,7 @@ source = re.sub(r"^#include <(?:zephyr/|drivers/|zmk/).*\n", "", source, flags=r
 with tempfile.TemporaryDirectory(prefix="voltball-auto-mouse-", dir=ROOT / "tests") as tmp:
     tmp = Path(tmp)
     test = tmp / "driver_test.c"
-    test.write_text(PREAMBLE.replace("POSITIONS", ", ".join(positions)) + source + TEST)
+    test.write_text(PREAMBLE + source + TEST)
     compiler = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("CC", "cc")
     output = tmp / ("driver_test.exe" if os.name == "nt" else "driver_test")
     if Path(compiler).stem.lower() == "cl":

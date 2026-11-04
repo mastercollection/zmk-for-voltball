@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
+
+/* Lets pointer mode end drag scroll on left-hand typing. */
+struct device;
+void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior));
+
 struct auto_mouse_state {
     uint32_t distance;
     int64_t blocked_until;
