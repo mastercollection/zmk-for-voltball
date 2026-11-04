@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT
+
+description: |
+  Voltball pointer speed and scroll mode. Use twice in one listener chain:
+  PTR_STAGE_MODE before auto mouse (converts X/Y to wheel while scroll mode is on)
+  and PTR_STAGE_SPEED after it (scales pointer X/Y). Controlled by &ptr.
+
+compatible: "zmk,input-processor-voltball-pointer"
+
+include: ip_one_param.yaml
+
+properties:
+  pointer-scales:
+    type: array
+    required: true
+    description: Pointer speed steps as mul/div pairs, slowest first.
+  pointer-default-index:
+    type: int
+    required: true
+  scroll-scales:
+    type: array
+    required: true
+    description: Scroll speed steps as mul/div pairs, slowest first.
+  scroll-default-index:
+    type: int
+    required: true
+  scroll-invert-y:
+    type: boolean

@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+
+if ZMK_POINTING
+
+config ZMK_VOLTBALL_POINTER_MODE
+    bool "Voltball pointer speed and scroll mode keys"
+    default y
+    depends on DT_HAS_ZMK_INPUT_PROCESSOR_VOLTBALL_POINTER_ENABLED
+    depends on DT_HAS_ZMK_BEHAVIOR_VOLTBALL_POINTER_ENABLED
+    help
+      &ptr steps pointer or scroll speed and switches the trackball between
+      pointer and scroll mode without a keymap layer. Steps persist in settings.
+
+endif # ZMK_POINTING

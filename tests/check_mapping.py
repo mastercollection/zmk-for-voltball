@@ -14,9 +14,18 @@ def bindings(text):
 
 reference = read("tests/fixtures/main-2eda3c9.keymap")
 current = read("config/voltball.keymap")
-assert bindings(current) == bindings(reference), "Main bindings or combos changed"
+# Only the documented &ptr changes may differ from main 2eda3c9.
+expected = bindings(reference)
+COMBOS, MOUSE, SCROLL = 10, 5, 7
+assert expected[COMBOS - 1] == ["&mo 7"]
+assert set(expected.pop(COMBOS + SCROLL)) == {"&trans"}
+expected[COMBOS - 1] = ["&ptr PTR_SCRL_MO"]
+for position, binding in ((8, "&ptr PTR_SPD_DN"), (9, "&ptr PTR_SPD_UP"), (19, "&ptr PTR_SCRL_TOG")):
+    assert expected[COMBOS + MOUSE][position] == "&trans"
+    expected[COMBOS + MOUSE][position] = binding
+assert bindings(current) == expected, "Main bindings or combos changed"
 layers = bindings(current.split('compatible = "zmk,keymap";', 1)[1])
-assert len(layers) == 8 and all(len(layer) == 42 for layer in layers)
+assert len(layers) == 7 and all(len(layer) == 42 for layer in layers)
 for pattern in (r"key-positions\s*=\s*<(.*?)>", r"timeout-ms\s*=\s*<(.*?)>"):
     assert re.findall(pattern, current) == re.findall(pattern, reference)
 for name in ("mt", "lt"):
@@ -27,6 +36,8 @@ layout = read("config/boards/shields/voltball/voltball-layout.dtsi")
 assert len(re.findall(r"&key_physical_attrs", layout)) == 42
 assert len(re.findall(r"RC\(", layout)) == 42
 processing = read("config/boards/shields/voltball/voltball-trackball-processing.dtsi")
-assert re.search(r"scroller\s*\{\s*layers\s*=\s*<7>", processing)
+assert "scroller" not in processing
+chain = re.search(r"input-processors\s*=\s*(<&zip_pointer_mode PTR_STAGE_MODE>.*?);", processing, re.S)[1]
+assert re.findall(r"<&(\w+)", chain) == ["zip_pointer_mode", "zip_threshold_temp_layer", "zip_pointer_mode"]
 assert "&zip_threshold_temp_layer 5 0>" in processing
-print("PASS: main 2eda3c9 bindings, 8 layers, 10 combos, hold-tap timings, SCROLL 7")
+print("PASS: main 2eda3c9 bindings + &ptr keys, 7 layers, 10 combos, hold-tap timings, scroll via &ptr")

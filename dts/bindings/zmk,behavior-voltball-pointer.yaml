@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT
+
+description: |
+  Voltball pointer control. Param is PTR_SPD_UP, PTR_SPD_DN, PTR_SPD_RST,
+  PTR_SCRL_TOG or PTR_SCRL_MO from dt-bindings/voltball/pointer_mode.h.
+
+compatible: "zmk,behavior-voltball-pointer"
+
+include: one_param.yaml
