@@ -1,11 +1,13 @@
 /* Landscape mascot screen for the pinned Prospector module, LVGL 9. */
 #include <lvgl.h>
 #include <zephyr/kernel.h>
+#include <zephyr/drivers/led.h>
 #include <zmk/display.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
 #include <zmk/events/battery_state_changed.h>
 #include <zmk/events/split_central_status_changed.h>
+#include <zmk/events/activity_state_changed.h>
 #include <zmk/keymap.h>
 #include <zmk/hid_indicators.h>
 #include <zmk/wpm.h>
@@ -61,6 +63,22 @@ ZMK_LISTENER(mascot_state, mascot_events);
 ZMK_SUBSCRIPTION(mascot_state, zmk_keycode_state_changed);
 ZMK_SUBSCRIPTION(mascot_state, zmk_peripheral_battery_state_changed);
 ZMK_SUBSCRIPTION(mascot_state, zmk_split_central_status_changed);
+
+#if !IS_ENABLED(CONFIG_PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR)
+/* Backlight follows ZMK activity (keys and trackball input); the panel itself
+ * is blanked by ZMK_DISPLAY_BLANK_ON_IDLE. */
+static int backlight_events(const zmk_event_t *eh) {
+    const struct zmk_activity_state_changed *ev = as_zmk_activity_state_changed(eh);
+    if (ev) {
+        led_set_brightness(DEVICE_DT_GET_ONE(pwm_leds), DT_NODE_CHILD_IDX(DT_NODELABEL(disp_bl)),
+                           ev->state == ZMK_ACTIVITY_ACTIVE ? CONFIG_PROSPECTOR_FIXED_BRIGHTNESS
+                                                            : 0);
+    }
+    return ZMK_EV_EVENT_BUBBLE;
+}
+ZMK_LISTENER(backlight_state, backlight_events);
+ZMK_SUBSCRIPTION(backlight_state, zmk_activity_state_changed);
+#endif
 
 static lv_obj_t *text(lv_obj_t *parent, const char *value, const lv_font_t *font,
                       int x, int y, uint32_t color) {

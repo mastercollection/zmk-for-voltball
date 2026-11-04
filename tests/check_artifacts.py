@@ -26,6 +26,7 @@ for name in names:
         assert on("ZMK_SPLIT_ROLE_CENTRAL") and on("ZMK_INPUT_SPLIT")
         assert conf["CONFIG_ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS"] == "2"
         assert not on("ZMK_STUDIO")
+        assert on("ZMK_DISPLAY_BLANK_ON_IDLE") and conf["CONFIG_ZMK_IDLE_TIMEOUT"] == "60000"
         assert on("ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING")
         for key in ["APDS9960", "PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR", "ZMK_NON_LIPO_BATTERY_MANAGEMENT",
                     "PAW3222", "ZMK_STATUS_LED", "ZMK_SLEEP"]:
@@ -36,6 +37,7 @@ for name in names:
         assert not on("ZMK_SPLIT_ROLE_CENTRAL") and not on("ZMK_STUDIO")
         assert on("ZMK_NON_LIPO_BATTERY_MANAGEMENT") and on("ZMK_SLEEP")
         assert conf["CONFIG_ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT"] == "300000"
+        assert conf["CONFIG_ZMK_IDLE_SLEEP_TIMEOUT"] == "7200000"
         assert on("PAW3222") == (name == "voltball_right")
         assert on("ZMK_INPUT_SPLIT") == (name == "voltball_right")
     report[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
