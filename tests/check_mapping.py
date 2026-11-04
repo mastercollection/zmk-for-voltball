@@ -36,3 +36,9 @@ assert f"&zip_threshold_temp_layer {mouse} 0>" in processing, "auto mouse cell m
 assert re.search(rf"mouse-layer\s*=\s*<{mouse}>", processing), "mouse-layer must be the MOUSE index"
 assert re.search(rf"arrows\s*\{{\s*layers\s*=\s*<{names.index('NAVI')}>", processing), "arrows must be on NAVI"
 print("PASS: layers of 42 keys, combo positions in range, MOUSE/NAVI indices match, scroll via &ptr")
+
+# Shift home-row keys skip prior-idle so Shift right after a letter still holds.
+for name in ("hsl", "hsr"):
+    block = re.search(rf"{name}: \w+ \{{(.*?)\}};", current, re.S)
+    assert block and "require-prior-idle-ms" not in block.group(1), f"{name} must not use prior-idle"
+assert "&hsl LSHFT F" in current and "&hsr RSHFT J" in current

@@ -252,8 +252,8 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - '&mkp MB3'
-  - '&mkp MB2'
   - '&mkp MB1'
+  - '&mkp MB2'
   - '&mkp MB5'
   - '&mkp MB4'
   - {t: ▽, type: trans}
