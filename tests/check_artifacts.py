@@ -37,6 +37,7 @@ for name in names:
         assert not on("ZMK_SPLIT_ROLE_CENTRAL") and not on("ZMK_STUDIO")
         assert on("ZMK_NON_LIPO_BATTERY_MANAGEMENT") and on("ZMK_SLEEP")
         assert conf["CONFIG_ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT"] == "300000"
+        assert conf["CONFIG_ZMK_IDLE_SLEEP_TIMEOUT"] == "7200000"
         assert on("PAW3222") == (name == "voltball_right")
         assert on("VOLTBALL_TRACKBALL_WAKE") == (name == "voltball_right")
         assert on("ZMK_INPUT_SPLIT") == (name == "voltball_right")
