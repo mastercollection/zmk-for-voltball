@@ -8,6 +8,7 @@ parse_config:
     "&ptr PTR_SCRL_MO": "SCRL"
     "&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG": "SCRL
 hold/tap"
+    "&leader": "LEADER"
 
 draw_config:
   append_colon_to_layer_header: false

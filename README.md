@@ -7,7 +7,7 @@ Voltball 양쪽(nice!nano v2)은 BLE peripheral, Prospector(XIAO nRF52840)는 ce
 2026-10-29 자동 MOUSE 유지 방식 변경은 로컬 소스와 호스트 회귀 검사에 반영했다. 위 기존 빌드·배포에는 포함되지 않으며 새 펌웨어 빌드와 실물 검증이 필요하다.
 
 - [빌드 결과, 소스/모듈 SHA, UF2 체크섬](BUILD_REPORT.md)
-- [백업·플래싱·왼쪽 우선 페어링·Studio 복원·복구·실물 검증](FLASHING_AND_VALIDATION.md)
+- [백업·플래싱·왼쪽 우선 페어링·복구·실물 검증](FLASHING_AND_VALIDATION.md)
 - [카운터 리뷰와 수정 근거](COUNTER_REVIEW.md)
 
 ## 다운로드
@@ -28,13 +28,16 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 레이어 순서: BASE 0 / SYM 1 / NAVI 2 / FUNC 3 / NUM 4 / MOUSE 5 / BT 6.
 - 홈로우 수정키(A S D F / J K L ;): urob의 timeless 방식(`&hml`/`&hmr`). tapping term 200ms, balanced, 반대손·엄지 키와 함께일 때만 홀드, 직전 입력 후 150ms 안에는 항상 탭, 같은 손 수정키끼리는 겹쳐 누르기 가능.
 - 콤마+마침표 콤보: caps-word. 다음 단어 하나를 대문자로 입력하고 Space·문장부호에서 꺼진다(`_`, `-`, 숫자는 유지).
+- 리더 키(`&leader`, urob `zmk-leader-key`): BT 레이어(오른손 안쪽 `&mo 6` 홀드)의 W 자리와 P 자리. 탭한 뒤 순서대로 입력한다.
+  - `B O O T` 부트로더 / `R E S E T` 재시작: 리더를 누른 쪽 반쪽에 적용(왼쪽은 W 자리, 오른쪽은 P 자리 리더).
+  - `B 0`~`B 3` BT 프로필 선택, `B C` 현재 BT 프로필 지우기, `S P D` 포인터 속도 기본값.
 - B 오른쪽: 음소거. N 왼쪽: BT 순간 활성화. S+D 콤보: 탭하면 스크롤 모드 토글, 누르고 있으면 그동안만 스크롤(`&ptr_ht`).
-- 맨 아래 왼쪽에서 두 번째(index 33): GUI. 그 오른쪽(index 34): Alt. 기존 main과 동일하게 Studio unlock 키는 없다.
+- 맨 아래 왼쪽에서 두 번째(index 33): GUI. 그 오른쪽(index 34): Alt.
 - PAW3222: 오른쪽 SPI/IRQ 유지, 950 CPI. 자동 MOUSE 임계값 100, 시간 제한 없이 유지. MOUSE에서 `&trans`인 키를 누르면 해제하고 그 키는 정상 입력한다. NAVI에서 방향키.
 - Prospector: 240×280 LCD, 고정 밝기 50%, 조도 센서 및 해당 I2C 비활성화. 터치 UI 없음.
 - 화면: 280×240 가로 배치, 타이핑 캐릭터, 기본 모디파이어, Caps/NumLock, WPM, 양쪽 배터리. 배터리 막대는 50% 이상 녹색, 20~49% 앰버, 20% 미만 빨강. 첫 보고 전 N/A.
 - AA/저전압/5분 광고 절전/GPIO 설정은 Voltball 양쪽에만 적용.
-- USB Studio는 Prospector에서만 활성화하며 잠금 사용. 키 바인딩 편집·저장은 지원하지만 물리 좌표 변경은 소스 수정 및 재빌드가 필요하다.
+- ZMK Studio는 끈다. 키맵은 저장소의 `config/voltball.keymap`(keymap-editor)으로만 편집한다.
 
 ![키맵](keymap-drawer/voltball.svg)
 
@@ -70,7 +73,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 
 - 볼을 멈춰도 자동 MOUSE는 유지된다.
 - **MOUSE 레이어에서 `&trans`인 키**를 누르면 자동 MOUSE가 해제되고, 그 키는 **그대로 입력된다**(QMK Keyball 방식). 양손 모두 같은 규칙이다.
-- MOUSE 레이어에 무언가 배치된 키(마우스 버튼, `&ptr` 등)는 해제하지 않는다. 판정은 동글의 실제 키맵을 읽으므로 Studio에서 MOUSE 레이어를 바꿔도 바로 반영된다.
+- MOUSE 레이어에 무언가 배치된 키(마우스 버튼, `&ptr` 등)는 해제하지 않는다. 판정은 동글의 실제 키맵을 읽으므로 MOUSE 레이어를 바꾸면 해제 대상도 따라 바뀐다.
 - Ctrl·Shift·Alt·GUI와 sticky modifier는 해제하지 않는다. hold-tap은 판정 후의 실제 동작으로 본다: F 홀드(Shift)는 유지, F 탭(문자)은 해제.
 - 콤보는 구성 키 중 하나라도 MOUSE에서 `&trans`이면 해제용이다.
 - 해제 키를 누른 뒤 200ms 동안 잔여 움직임을 무시한다. 수동으로 잠근 MOUSE 레이어는 강제로 끄지 않는다.

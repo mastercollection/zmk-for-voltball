@@ -13,6 +13,9 @@
         
         // Ignore residual motion immediately after typing.
         require-prior-idle-ms = <200>;
+
+        // MOUSE layer index; must match the listener cell below.
+        mouse-layer = <5>;
     };
 
     

@@ -13,6 +13,8 @@ expected = "ed98221f3b52b7066dbb10ba3af8a29150b93a5a"
 actual = subprocess.check_output(["git", "-C", str(module), "rev-parse", "HEAD"], text=True).strip()
 if actual != expected:
     raise SystemExit(f"Prospector revision changed: {actual}")
+# The CI module cache can hold a previously patched tree; start from the pinned commit.
+subprocess.run(["git", "-C", str(module), "checkout", "--", "."], check=True)
 path = module / "boards/shields/prospector_adapter/src/layouts/classic/battery_bar.c"
 source = path.read_text()
 old = "return (struct battery_update_state){.source = 0, .level = 0};"

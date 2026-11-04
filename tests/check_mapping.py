@@ -1,4 +1,4 @@
-"""Structural keymap checks. Bindings are edited freely (keymap-editor, Studio)."""
+"""Structural keymap checks. Bindings are edited freely (keymap-editor)."""
 from pathlib import Path
 import re
 
@@ -13,8 +13,12 @@ def bindings(text):
             for block in re.findall(r"bindings\s*=\s*<(.*?)>;", text, re.S)]
 
 current = read("config/voltball.keymap")
-layers = bindings(current.split('compatible = "zmk,keymap";', 1)[1])
-assert len(layers) == 7 and all(len(layer) == 42 for layer in layers)
+keymap = current.split('compatible = "zmk,keymap";', 1)[1]
+layers = bindings(keymap)
+assert layers and all(len(layer) == 42 for layer in layers)
+# Input processors refer to layers by index; keep them on the named layers.
+names = re.findall(r'display-name\s*=\s*"([^"]+)"', keymap)
+assert len(names) == len(layers), "every layer needs a display-name"
 # Scroll is a &ptr mode, not a layer; the S+D style combo uses the hold-tap.
 assert "&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG" in current and "&mo 7" not in current
 # Combo positions must exist on the 42-key layout.
@@ -27,5 +31,8 @@ processing = read("config/boards/shields/voltball/voltball-trackball-processing.
 assert "scroller" not in processing
 chain = re.search(r"input-processors\s*=\s*(<&zip_pointer_mode PTR_STAGE_MODE>.*?);", processing, re.S)[1]
 assert re.findall(r"<&(\w+)", chain) == ["zip_pointer_mode", "zip_threshold_temp_layer", "zip_pointer_mode"]
-assert "&zip_threshold_temp_layer 5 0>" in processing
-print("PASS: 7 layers of 42 keys, combo positions in range, scroll via &ptr")
+mouse = names.index("MOUSE")
+assert f"&zip_threshold_temp_layer {mouse} 0>" in processing, "auto mouse cell must be the MOUSE index"
+assert re.search(rf"mouse-layer\s*=\s*<{mouse}>", processing), "mouse-layer must be the MOUSE index"
+assert re.search(rf"arrows\s*\{{\s*layers\s*=\s*<{names.index('NAVI')}>", processing), "arrows must be on NAVI"
+print("PASS: layers of 42 keys, combo positions in range, MOUSE/NAVI indices match, scroll via &ptr")

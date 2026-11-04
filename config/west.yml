@@ -16,6 +16,9 @@ manifest:
       url-base: https://github.com/gohanda11
     - name: carrefinho
       url-base: https://github.com/carrefinho
+    # Leader key behavior (keycode sequences), tested by upstream against ZMK main.
+    - name: urob
+      url-base: https://github.com/urob
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -33,5 +36,8 @@ manifest:
     - name: prospector-zmk-module
       remote: carrefinho
       revision: ed98221f3b52b7066dbb10ba3af8a29150b93a5a
+    - name: zmk-leader-key
+      remote: urob
+      revision: 4745294d5f2bc12bbdf91471dd85bfbdbb35c47d
   self:
     path: config

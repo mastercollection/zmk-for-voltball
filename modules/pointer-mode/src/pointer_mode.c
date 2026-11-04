@@ -125,7 +125,7 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
 }
 
 #if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
-void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior));
+#include "auto_mouse_state.h"
 
 /* Typing (an &trans key on MOUSE) ends a latched drag scroll, like auto mouse.
  * &ptr itself is exempt so its own toggle key can switch scroll off. */

@@ -25,3 +25,10 @@ properties:
     description: |
       Suppress activation after a non-modifier press on an exit (&trans) key.
       Suppressed movement is discarded, not accumulated.
+
+  mouse-layer:
+    type: int
+    required: true
+    description: |
+      Index of the latched layer; must equal the listener cell. Exit keys are
+      read from its bindings, so it must be known before any motion.

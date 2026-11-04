@@ -5,12 +5,10 @@ import subprocess
 ZMK_REVISION = "4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85"
 ANCHOR = "    int err = behavior_keymap_binding_convert_central_state_dependent_params(&binding, event);"
 HOOK = """#if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
-    extern bool voltball_auto_mouse_filter(const struct device *behavior,
+    extern void voltball_auto_mouse_filter(const struct device *behavior,
                                            const struct zmk_behavior_binding *binding,
                                            struct zmk_behavior_binding_event event, bool pressed);
-    if (voltball_auto_mouse_filter(behavior, &binding, event, pressed)) {
-        return ZMK_BEHAVIOR_OPAQUE;
-    }
+    voltball_auto_mouse_filter(behavior, &binding, event, pressed);
 #endif
 """
 
@@ -27,5 +25,7 @@ def apply(zmk):
     if actual != ZMK_REVISION:
         raise ValueError(f"ZMK revision changed: {actual}")
     path = zmk / "app/src/behavior.c"
+    # The CI module cache can hold a previously patched tree; start from the pinned file.
+    subprocess.run(["git", "-C", str(zmk), "checkout", "--", "app/src/behavior.c"], check=True)
     path.write_text(patch_source(path.read_text()))
-    print("Patched ZMK: left non-modifier action exits auto mouse without emitting press/release")
+    print("Patched ZMK: &trans key on MOUSE exits auto mouse; the action is still delivered")
