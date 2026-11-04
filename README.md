@@ -62,6 +62,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 | `&ptr PTR_SCRL_MO` | 누르는 동안만 스크롤 모드 |
 
 - 기본 배치: MOUSE 레이어 O 자리 속도 내림, P 자리 속도 올림. 스크롤은 MOUSE와 별도 모드라 어느 레이어에서든 S+D 콤보로 쓴다: 탭(200ms 미만)은 토글, 홀드는 누르는 동안만 스크롤(`&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG`).
+- 데드존: 공이 100ms 이상 멈춘 뒤에는 센서 단위 8 이상 움직여야 커서·스크롤이 따라간다. 살짝 스친 움직임은 무시하고 오토마우스도 켜지 않는다. `zip_pointer_mode`의 `deadzone`, `deadzone-reset-ms`로 조절(0이면 끔).
 - 포인터 단계: ×1/4, ×1/2, ×3/4, **×1**, ×3/2, ×2, ×3. 스크롤 단계: ×1/20, ×1/15, **×1/10**, ×1/7, ×1/5, ×1/3 (Y 반전). 굵은 값이 기본이며 `voltball-trackball-processing.dtsi`의 `zip_pointer_mode`에서 바꾼다.
 - 단계는 설정 저장소에 저장되어 재부팅 후에도 유지된다. 스크롤 모드는 항상 꺼진 상태로 시작한다.
 - 스크롤 토글은 자동 MOUSE 해제와 같은 기준(MOUSE에서 `&trans`인 키, 수정키 제외)으로 꺼진다. `&ptr` 키 자체와 누르는 동안 스크롤(`PTR_SCRL_MO`)은 예외다.

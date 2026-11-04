@@ -26,3 +26,13 @@ properties:
     required: true
   scroll-invert-y:
     type: boolean
+  deadzone:
+    type: int
+    default: 0
+    description: |
+      Sensor counts the ball must move after a rest before motion is passed on.
+      0 disables. Applies to pointer and scroll mode.
+  deadzone-reset-ms:
+    type: int
+    default: 100
+    description: Pause after which the deadzone applies again.

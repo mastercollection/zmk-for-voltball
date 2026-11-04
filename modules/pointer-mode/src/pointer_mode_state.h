@@ -17,6 +17,10 @@ struct ptr_state {
     bool scroll_toggled;
     uint8_t scroll_held;
     int32_t remainder[PTR_AXES];
+    /* Deadzone: motion is dropped until it adds up after a pause. */
+    int64_t last_motion;
+    uint32_t dz_distance;
+    bool dz_moving;
 };
 
 static inline bool ptr_scroll_active(const struct ptr_state *s) {
@@ -37,6 +41,27 @@ static inline bool ptr_end_toggle(struct ptr_state *s) {
     s->scroll_toggled = false;
     ptr_clear_remainders(s);
     return true;
+}
+
+/* Returns false while motion after a pause of reset_ms has not yet added up to
+ * deadzone counts; those reports should be dropped. Once past it, all motion
+ * passes until the ball rests again. */
+static inline bool ptr_deadzone(struct ptr_state *s, int32_t value, int64_t now,
+                                uint32_t deadzone, uint32_t reset_ms) {
+    if (deadzone == 0 || value == 0) {
+        return true;
+    }
+    if (now - s->last_motion > (int64_t)reset_ms) {
+        s->dz_moving = false;
+        s->dz_distance = 0;
+    }
+    s->last_motion = now;
+    if (!s->dz_moving) {
+        uint32_t magnitude = value < 0 ? (uint32_t)(-(int64_t)value) : (uint32_t)value;
+        s->dz_distance += magnitude;
+        s->dz_moving = s->dz_distance >= deadzone;
+    }
+    return s->dz_moving;
 }
 
 /* Move one step within [0, count); returns true when the step changed. */

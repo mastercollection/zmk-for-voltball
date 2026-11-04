@@ -48,6 +48,15 @@ int main(void) {
     s.remainder[PTR_SCROLL_Y] = 7;
     ptr_clear_remainders(&s);
     assert(s.remainder[PTR_SCROLL_Y] == 0);
-    puts("PASS: clamped steps, carried remainders, toggle and hold scroll mode, typing ends toggle");
+    /* Deadzone: a light touch is dropped, a real move passes, a rest re-arms it. */
+    struct ptr_state d = {0};
+    assert(!ptr_deadzone(&d, 3, 1000, 8, 100));
+    assert(!ptr_deadzone(&d, -4, 1010, 8, 100));
+    assert(ptr_deadzone(&d, 1, 1020, 8, 100));
+    assert(ptr_deadzone(&d, 1, 1030, 8, 100));
+    assert(ptr_deadzone(&d, 0, 2000, 8, 100));
+    assert(!ptr_deadzone(&d, 2, 1131, 8, 100));
+    assert(ptr_deadzone(&d, 5, 1, 0, 100));
+    puts("PASS: clamped steps, carried remainders, toggle and hold scroll mode, typing ends toggle, deadzone");
     return 0;
 }
