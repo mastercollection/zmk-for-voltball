@@ -30,6 +30,9 @@
         scroll-scales = <1 20  1 15  1 10  1 7  1 5  1 3>;
         scroll-default-index = <2>;
         scroll-invert-y;
+        // Ignore light touches: after a 100ms rest, motion starts only past 8 counts.
+        deadzone = <8>;
+        deadzone-reset-ms = <100>;
     };
 
     zip_trackball_arrows: zip_trackball_arrows {

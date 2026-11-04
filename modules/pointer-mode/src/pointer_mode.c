@@ -37,6 +37,8 @@ BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(zmk_behavior_voltball_pointer) == 1,
              "Voltball pointer mode supports one &ptr behavior");
 
 static const bool scroll_invert_y = DT_INST_PROP(0, scroll_invert_y);
+static const uint32_t deadzone = DT_INST_PROP(0, deadzone);
+static const uint32_t deadzone_reset_ms = DT_INST_PROP(0, deadzone_reset_ms);
 
 static K_MUTEX_DEFINE(ptr_lock);
 static struct ptr_state state = {
@@ -108,6 +110,12 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
     }
     bool is_x = event->code == INPUT_REL_X;
     k_mutex_lock(&ptr_lock, K_FOREVER);
+    /* MODE is first in the chain: a dropped touch moves nothing and does not
+     * count toward auto mouse, in pointer and scroll mode alike. */
+    if (stage == PTR_STAGE_MODE &&
+        !ptr_deadzone(&state, event->value, k_uptime_get(), deadzone, deadzone_reset_ms)) {
+        event->value = 0;
+    }
     if (ptr_scroll_active(&state)) {
         /* MODE runs before auto mouse, so scrolling never latches the mouse layer. */
         if (stage == PTR_STAGE_MODE) {
