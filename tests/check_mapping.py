@@ -42,3 +42,9 @@ for name in ("hsl", "hsr"):
     block = re.search(rf"{name}: \w+ \{{(.*?)\}};", current, re.S)
     assert block and "require-prior-idle-ms" not in block.group(1), f"{name} must not use prior-idle"
 assert "&hsl LSHFT F" in current and "&hsr RSHFT J" in current
+
+# Every combo: short window and prior-idle, so typing rolls never fire one.
+combos = re.search(r"combos \{(.*?)\n    \};", current, re.S).group(1)
+for m in re.finditer(r"(\w+) \{(.*?)\};", combos, re.S):
+    assert "timeout-ms = <20>" in m.group(2), f"combo {m.group(1)} needs timeout-ms 20"
+    assert "require-prior-idle-ms" in m.group(2), f"combo {m.group(1)} needs require-prior-idle-ms"
