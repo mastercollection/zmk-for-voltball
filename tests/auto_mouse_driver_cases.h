@@ -11,7 +11,7 @@ static bool filter(const struct device *behavior, uint32_t position, uint32_t ke
 }
 
 static int typing_calls;
-static void count_typing(void) { typing_calls++; }
+static void count_typing(const struct device *behavior) { (void)behavior; typing_calls++; }
 
 static void activate(void) {
     memset(&data, 0, sizeof(data));

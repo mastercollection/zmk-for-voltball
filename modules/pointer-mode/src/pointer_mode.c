@@ -32,6 +32,11 @@ BUILD_ASSERT(POINTER_DEFAULT < POINTER_STEPS, "pointer-default-index out of rang
 BUILD_ASSERT(SCROLL_DEFAULT < SCROLL_STEPS, "scroll-default-index out of range");
 BUILD_ASSERT(POINTER_STEPS <= UINT8_MAX && SCROLL_STEPS <= UINT8_MAX, "Too many steps");
 
+#define PTR_BEHAVIOR DT_INST(0, zmk_behavior_voltball_pointer)
+BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(zmk_behavior_voltball_pointer) == 1,
+             "Voltball pointer mode supports one &ptr behavior");
+DEVICE_DT_DECLARE(PTR_BEHAVIOR);
+
 static const bool scroll_invert_y = DT_INST_PROP(0, scroll_invert_y);
 
 static K_MUTEX_DEFINE(ptr_lock);
@@ -121,10 +126,14 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
 }
 
 #if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
-void voltball_auto_mouse_set_typing_callback(void (*callback)(void));
+void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior));
 
-/* Left-hand typing ends a latched drag scroll, like it ends auto mouse. */
-static void ptr_on_typing(void) {
+/* Left-hand typing ends a latched drag scroll, like it ends auto mouse.
+ * &ptr itself is exempt so a left-hand toggle key can switch scroll off. */
+static void ptr_on_typing(const struct device *behavior) {
+    if (behavior == DEVICE_DT_GET(PTR_BEHAVIOR)) {
+        return;
+    }
     k_mutex_lock(&ptr_lock, K_FOREVER);
     if (ptr_end_toggle(&state)) {
         LOG_DBG("scroll toggle cleared by typing");
@@ -149,7 +158,6 @@ DEVICE_DT_INST_DEFINE(0, PTR_INIT, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_
                       &ptr_processor_api);
 
 /* &ptr behavior. Runs on the central, where the processor also lives. */
-#define PTR_BEHAVIOR DT_INST(0, zmk_behavior_voltball_pointer)
 
 static int ptr_binding_pressed(struct zmk_behavior_binding *binding,
                                struct zmk_behavior_binding_event event) {

@@ -25,11 +25,13 @@ expected[SYM] = sym_left + expected[SYM][32:]
 COMBOS, MOUSE, SCROLL = 10, 5, 7
 assert expected[COMBOS - 1] == ["&mo 7"]
 assert set(expected.pop(COMBOS + SCROLL)) == {"&trans"}
-expected[COMBOS - 1] = ["&ptr PTR_SCRL_MO"]
-for position, binding in ((8, "&ptr PTR_SPD_DN"), (9, "&ptr PTR_SPD_UP"), (19, "&ptr PTR_SCRL_TOG")):
+expected[COMBOS - 1] = ["&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG"]
+for position, binding in ((8, "&ptr PTR_SPD_DN"), (9, "&ptr PTR_SPD_UP")):
     assert expected[COMBOS + MOUSE][position] == "&trans"
     expected[COMBOS + MOUSE][position] = binding
-assert bindings(current) == expected, "Main bindings or combos changed"
+# Custom behaviors (&ptr_ht) also use "bindings"; compare from the combos on.
+COMBOS_START = 'compatible = "zmk,combos";'
+assert bindings(current.split(COMBOS_START, 1)[1]) == expected, "Main bindings or combos changed"
 layers = bindings(current.split('compatible = "zmk,keymap";', 1)[1])
 assert len(layers) == 7 and all(len(layer) == 42 for layer in layers)
 for pattern in (r"key-positions\s*=\s*<(.*?)>", r"timeout-ms\s*=\s*<(.*?)>"):

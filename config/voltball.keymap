@@ -30,6 +30,16 @@
             #binding-cells = <1>;
             display-name = "Pointer";
         };
+
+        // Tap: latch drag scroll on/off. Hold: scroll only while held.
+        ptr_ht: scroll_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            display-name = "Scroll Hold/Tap";
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&ptr>, <&ptr>;
+        };
     };
 
     combos {
@@ -90,7 +100,7 @@
         };
 
         combo10 {
-            bindings = <&ptr PTR_SCRL_MO>;
+            bindings = <&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG>;
             key-positions = <11 12>;
         };
     };
@@ -151,7 +161,7 @@
         MOUSE {
             bindings = <
 &trans  &trans  &trans  &trans  &trans                           &trans    &trans    &trans    &ptr PTR_SPD_DN  &ptr PTR_SPD_UP
-&trans  &trans  &trans  &trans  &trans                           &trans    &mkp MB4  &mkp MB3  &mkp MB5         &ptr PTR_SCRL_TOG
+&trans  &trans  &trans  &trans  &trans                           &trans    &mkp MB4  &mkp MB3  &mkp MB5         &trans
 &trans  &trans  &trans  &trans  &trans     &trans      &trans    &trans    &trans    &trans    &trans    &trans
 &trans  &trans  &trans  &trans  &kp LCTRL  &trans      &mkp MB2  &mkp MB1                      &trans    &trans
             >;
