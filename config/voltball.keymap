@@ -24,6 +24,9 @@
 
 &mo { locking; };
 
+/* Keep words like SOME-NAME capitalized across - as well as _. */
+&caps_word { continue-list = <UNDERSCORE MINUS BACKSPACE DELETE>; };
+
 / {
     behaviors {
         ptr: voltball_pointer {
@@ -133,6 +136,12 @@
         combo10 {
             bindings = <&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG>;
             key-positions = <11 12>;
+        };
+
+        caps_word_combo {
+            bindings = <&caps_word>;
+            key-positions = <29 30>;
+            timeout-ms = <20>;
         };
     };
 
