@@ -14,8 +14,14 @@ def bindings(text):
 
 reference = read("tests/fixtures/main-2eda3c9.keymap")
 current = read("config/voltball.keymap")
-# Only the documented &ptr changes may differ from main 2eda3c9.
+# SYM symbols moved to the left hand and documented &ptr changes;
+# everything else matches main 2eda3c9.
+SYM = 10 + 1
+sym_left = (["&kp LS(DQT)", "&kp LS(AMPS)", "&kp LS(STAR)", "&kp LS(TILDE)", "&kp APOS"] + ["&trans"] * 5
+            + ["&kp GRAVE", "&kp LS(DLLR)", "&kp LS(PRCNT)", "&kp LS(CARET)", "&kp EQUAL"] + ["&trans"] * 5
+            + ["&kp LS(TILDE)", "&kp LS(EXCL)", "&kp LS(AT)", "&kp LS(POUND)", "&kp LS(PLUS)"] + ["&trans"] * 7)
 expected = bindings(reference)
+expected[SYM] = sym_left + expected[SYM][32:]
 COMBOS, MOUSE, SCROLL = 10, 5, 7
 assert expected[COMBOS - 1] == ["&mo 7"]
 assert set(expected.pop(COMBOS + SCROLL)) == {"&trans"}
@@ -40,4 +46,4 @@ assert "scroller" not in processing
 chain = re.search(r"input-processors\s*=\s*(<&zip_pointer_mode PTR_STAGE_MODE>.*?);", processing, re.S)[1]
 assert re.findall(r"<&(\w+)", chain) == ["zip_pointer_mode", "zip_threshold_temp_layer", "zip_pointer_mode"]
 assert "&zip_threshold_temp_layer 5 0>" in processing
-print("PASS: main 2eda3c9 bindings + &ptr keys, 7 layers, 10 combos, hold-tap timings, scroll via &ptr")
+print("PASS: main 2eda3c9 bindings + left-hand SYM + &ptr keys, 7 layers, 10 combos, hold-tap timings, scroll via &ptr")

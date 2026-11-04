@@ -111,9 +111,9 @@
         sym_layer {
             display-name = "SYM";
             bindings = <
-                &trans  &trans  &kp LS(DQT)  &kp APOS  &trans  &trans  &kp LS(AMPS)  &kp LS(STAR)  &kp LS(TILDE)  &trans
-                &trans  &trans  &trans  &trans  &trans  &kp EQUAL  &kp LS(DLLR)  &kp LS(PRCNT)  &kp LS(CARET)  &kp GRAVE
-                &trans  &trans  &trans  &trans  &trans  &trans  &trans  &kp LS(PLUS)  &kp LS(EXCL)  &kp LS(AT)  &kp LS(POUND)  &kp LS(TILDE)
+                &kp LS(DQT)  &kp LS(AMPS)  &kp LS(STAR)  &kp LS(TILDE)  &kp APOS  &trans  &trans  &trans  &trans  &trans
+                &kp GRAVE  &kp LS(DLLR)  &kp LS(PRCNT)  &kp LS(CARET)  &kp EQUAL  &trans  &trans  &trans  &trans  &trans
+                &kp LS(TILDE)  &kp LS(EXCL)  &kp LS(AT)  &kp LS(POUND)  &kp LS(PLUS)  &trans  &trans  &trans  &trans  &trans  &trans  &trans
                 &trans  &trans  &trans  &trans  &kp MINUS  &kp LS(MINUS)  &trans  &trans  &trans  &trans
             >;
         };
