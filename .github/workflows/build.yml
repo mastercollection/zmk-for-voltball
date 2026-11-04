@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - run: python3 tests/check_mapping.py
+      - name: Check latched automatic mouse behavior
+        run: |
+          python3 tests/check_auto_mouse.py
+          python3 tests/auto_mouse_driver_test.py
+          cc -std=c11 -Wall -Wextra -Werror tests/auto_mouse_test.c -o /tmp/auto-mouse-test
+          /tmp/auto-mouse-test
       - name: Check mascot input and animation rules
         run: |
           cc -std=c11 -Wall -Wextra -Werror tests/mascot_logic_test.c -o /tmp/mascot-test

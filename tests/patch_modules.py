@@ -5,6 +5,9 @@ import sys
 import shutil
 
 workspace = Path(sys.argv[1])
+from patch_auto_mouse import apply as apply_auto_mouse
+apply_auto_mouse(workspace / "zmk")
+
 module = workspace / "prospector-zmk-module"
 expected = "ed98221f3b52b7066dbb10ba3af8a29150b93a5a"
 actual = subprocess.check_output(["git", "-C", str(module), "rev-parse", "HEAD"], text=True).strip()
