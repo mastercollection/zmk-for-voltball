@@ -16,7 +16,9 @@ reference = read("tests/fixtures/main-2eda3c9.keymap")
 current = read("config/voltball.keymap")
 # SYM symbols moved to the left hand; everything else matches main 2eda3c9.
 SYM = 10 + 1
-sym_left = ["&kp LS(DQT)", "&kp LS(AMPS)", "&kp LS(STAR)", "&kp LS(TILDE)", "&kp APOS"] + ["&trans"] * 5 +     ["&kp GRAVE", "&kp LS(DLLR)", "&kp LS(PRCNT)", "&kp LS(CARET)", "&kp EQUAL"] + ["&trans"] * 5 +     ["&kp LS(TILDE)", "&kp LS(EXCL)", "&kp LS(AT)", "&kp LS(POUND)", "&kp LS(PLUS)"] + ["&trans"] * 7
+sym_left = (["&kp LS(DQT)", "&kp LS(AMPS)", "&kp LS(STAR)", "&kp LS(TILDE)", "&kp APOS"] + ["&trans"] * 5
+            + ["&kp GRAVE", "&kp LS(DLLR)", "&kp LS(PRCNT)", "&kp LS(CARET)", "&kp EQUAL"] + ["&trans"] * 5
+            + ["&kp LS(TILDE)", "&kp LS(EXCL)", "&kp LS(AT)", "&kp LS(POUND)", "&kp LS(PLUS)"] + ["&trans"] * 7)
 expected = bindings(reference)
 expected[SYM] = sym_left + expected[SYM][32:]
 assert bindings(current) == expected, "Main bindings or combos changed"
