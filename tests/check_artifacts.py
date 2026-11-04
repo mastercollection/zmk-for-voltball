@@ -26,6 +26,7 @@ for name in names:
         assert on("ZMK_SPLIT_ROLE_CENTRAL") and on("ZMK_INPUT_SPLIT")
         assert conf["CONFIG_ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS"] == "2"
         assert not on("ZMK_STUDIO")
+        assert on("ZMK_DISPLAY_BLANK_ON_IDLE") and conf["CONFIG_ZMK_IDLE_TIMEOUT"] == "60000"
         assert on("ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING")
         for key in ["APDS9960", "PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR", "ZMK_NON_LIPO_BATTERY_MANAGEMENT",
                     "PAW3222", "ZMK_STATUS_LED", "ZMK_SLEEP"]:
