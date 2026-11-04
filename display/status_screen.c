@@ -15,13 +15,22 @@
 #include <dt-bindings/zmk/hid_usage_pages.h>
 #include "modifier_indicator.h"
 #include "mascot_logic.h"
+#if IS_ENABLED(CONFIG_ZMK_VOLTBALL_POINTER_MODE)
+#include <voltball/pointer_mode.h>
+#endif
 
 extern const lv_image_dsc_t mascot_frames[4];
 static struct zmk_widget_modifier_indicator modifier_widget;
 static lv_obj_t *pet, *layer_label, *speed_label;
-static lv_obj_t *lock_boxes[2], *lock_glyphs[2];
+/* Indicator boxes left to right after the layer name: Scroll, Caps, NumLock. */
+enum { IND_SCROLL, IND_CAPS, IND_NUM, IND_COUNT };
+static lv_obj_t *lock_boxes[IND_COUNT], *lock_glyphs[IND_COUNT];
 static lv_obj_t *battery_labels[2], *battery_bars[2];
-static bool previous_locks[2];
+static bool previous_locks[IND_COUNT];
+/* A speed key press shows the new ratio in the WPM slot for this long. */
+#define SPEED_FLASH_MS 1000
+static uint32_t speed_flash_until, previous_speed_presses;
+static bool speed_presses_seen;
 static uint8_t current_frame, previous_layer = UINT8_MAX, previous_wpm = UINT8_MAX;
 static uint32_t frame_tick;
 static const uint32_t active_color = 0x00ffe5;
@@ -120,12 +129,13 @@ static void screen_tick(lv_timer_t *timer) {
         else { lv_label_set_text_fmt(layer_label, "L%u", layer); }
         previous_layer = layer;
     }
+    uint32_t now = lv_tick_get();
     uint8_t wpm = zmk_wpm_get_state();
-    if (wpm != previous_wpm) {
+    if (wpm != previous_wpm && (int32_t)(now - speed_flash_until) >= 0) {
         lv_label_set_text_fmt(speed_label, "%u WPM", wpm);
+        lv_obj_set_style_text_color(speed_label, lv_color_hex(0x98909f), 0);
         previous_wpm = wpm;
     }
-    uint32_t now = lv_tick_get();
     uint8_t next = current_frame;
     if (!mascot_running(&state, k_uptime_get())) { next = 0; }
     else if (current_frame == 0 || now - frame_tick >= mascot_frame_ms(wpm)) {
@@ -140,8 +150,22 @@ static void screen_tick(lv_timer_t *timer) {
     bool locks[] = { (indicators & BIT(HID_USAGE_LED_CAPS_LOCK - 1)) != 0,
                      (indicators & BIT(HID_USAGE_LED_NUM_LOCK - 1)) != 0 };
     for (int i = 0; i < 2; i++) {
-        if (locks[i] != previous_locks[i]) { set_lock(i, locks[i]); }
+        if (locks[i] != previous_locks[IND_CAPS + i]) { set_lock(IND_CAPS + i, locks[i]); }
     }
+#if IS_ENABLED(CONFIG_ZMK_VOLTBALL_POINTER_MODE)
+    struct voltball_ptr_status ptr;
+    voltball_ptr_get_status(&ptr);
+    if (ptr.scroll != previous_locks[IND_SCROLL]) { set_lock(IND_SCROLL, ptr.scroll); }
+    if (speed_presses_seen && ptr.speed_presses != previous_speed_presses) {
+        if (ptr.div == 1) { lv_label_set_text_fmt(speed_label, "x%d", (int)ptr.mul); }
+        else { lv_label_set_text_fmt(speed_label, "x%d/%d", (int)ptr.mul, (int)ptr.div); }
+        lv_obj_set_style_text_color(speed_label, lv_color_hex(active_color), 0);
+        speed_flash_until = now + SPEED_FLASH_MS;
+        previous_wpm = UINT8_MAX;
+    }
+    previous_speed_presses = ptr.speed_presses;
+    speed_presses_seen = true;
+#endif
     static uint16_t previous_battery[2] = { UINT16_MAX, UINT16_MAX };
     for (int i = 0; i < 2; i++) {
         uint16_t value = !connected[i] ? 256 : !reported[i] ? 257 : level[i];
@@ -175,21 +199,27 @@ lv_obj_t *zmk_display_status_screen(void) {
     static const lv_point_precise_t caps[] = {
         {4,13},{4,9},{0,9},{8,1},{16,9},{12,9},{12,13},{4,13},{4,17},{12,17}
     };
-    for (int i = 0; i < 2; i++) {
+    /* Up/down arrow, retraced as one polyline. */
+    static const lv_point_precise_t scroll[] = {
+        {4,5},{8,1},{12,5},{8,1},{8,19},{4,15},{8,19},{12,15}
+    };
+    for (int i = 0; i < IND_COUNT; i++) {
+        if (i == IND_SCROLL && !IS_ENABLED(CONFIG_ZMK_VOLTBALL_POINTER_MODE)) { continue; }
         lock_boxes[i] = lv_obj_create(screen);
         lv_obj_remove_style_all(lock_boxes[i]);
-        lv_obj_set_pos(lock_boxes[i], 201 + i * 35, 20);
+        lv_obj_set_pos(lock_boxes[i], 166 + i * 35, 20);
         lv_obj_set_size(lock_boxes[i], 26, 26);
         lv_obj_set_style_border_width(lock_boxes[i], 1, 0);
         lv_obj_set_style_radius(lock_boxes[i], 4, 0);
         lv_obj_set_style_bg_opa(lock_boxes[i], LV_OPA_COVER, 0);
-        if (i == 1) {
+        if (i == IND_NUM) {
             lock_glyphs[i] = text(lock_boxes[i], "1", &lv_font_montserrat_16, 0, 0, 0x77717d);
             lv_obj_center(lock_glyphs[i]);
         } else {
             lock_glyphs[i] = lv_line_create(lock_boxes[i]);
-            lv_line_set_points(lock_glyphs[i], caps, ARRAY_SIZE(caps));
-            lv_obj_set_pos(lock_glyphs[i], 4, 3);
+            lv_line_set_points(lock_glyphs[i], i == IND_CAPS ? caps : scroll,
+                               i == IND_CAPS ? ARRAY_SIZE(caps) : ARRAY_SIZE(scroll));
+            lv_obj_set_pos(lock_glyphs[i], i == IND_CAPS ? 4 : 5, 3);
             lv_obj_set_style_line_width(lock_glyphs[i], 2, 0);
         }
         set_lock(i, false);

@@ -10,6 +10,7 @@
 #include <drivers/input_processor.h>
 #include <zmk/behavior.h>
 #include <dt-bindings/voltball/pointer_mode.h>
+#include <voltball/pointer_mode.h>
 #include "pointer_mode_state.h"
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -45,9 +46,20 @@ static struct ptr_state state = {
     .pointer_step = POINTER_DEFAULT,
     .scroll_step = SCROLL_DEFAULT,
 };
+static uint32_t speed_presses;
 
 static struct ptr_ratio ratio_at(const int32_t *scales, uint8_t step) {
     return (struct ptr_ratio){.mul = scales[step * 2], .div = scales[step * 2 + 1]};
+}
+
+void voltball_ptr_get_status(struct voltball_ptr_status *out) {
+    k_mutex_lock(&ptr_lock, K_FOREVER);
+    bool scroll = ptr_scroll_active(&state);
+    struct ptr_ratio ratio = scroll ? ratio_at(scroll_scales, state.scroll_step)
+                                    : ratio_at(pointer_scales, state.pointer_step);
+    *out = (struct voltball_ptr_status){
+        .scroll = scroll, .mul = ratio.mul, .div = ratio.div, .speed_presses = speed_presses};
+    k_mutex_unlock(&ptr_lock);
 }
 
 /* Only the steps persist; scroll mode always starts off. */
@@ -177,11 +189,14 @@ static int ptr_binding_pressed(struct zmk_behavior_binding *binding,
     switch (binding->param1) {
     case PTR_SPD_UP:
         save = ptr_step(step, 1, count);
+        speed_presses++;
         break;
     case PTR_SPD_DN:
         save = ptr_step(step, -1, count);
+        speed_presses++;
         break;
     case PTR_SPD_RST: {
+        speed_presses++;
         uint8_t initial = scroll ? SCROLL_DEFAULT : POINTER_DEFAULT;
         save = *step != initial;
         *step = initial;
