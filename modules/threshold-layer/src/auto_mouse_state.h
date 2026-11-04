@@ -6,7 +6,7 @@
 
 /* Lets pointer mode end drag scroll on left-hand typing. */
 struct device;
-void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior));
+void voltball_auto_mouse_set_typing_callback(bool (*callback)(const struct device *behavior));
 
 struct auto_mouse_state {
     uint32_t distance;

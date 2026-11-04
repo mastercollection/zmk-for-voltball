@@ -148,16 +148,17 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
 #include "auto_mouse_state.h"
 
 /* Typing (an &trans key on MOUSE) ends a latched drag scroll, like auto mouse.
- * &ptr itself is exempt so its own toggle key can switch scroll off. */
-static void ptr_on_typing(const struct device *behavior) {
+ * &ptr itself is a pointer control: it keeps the mouse layer and the toggle. */
+static bool ptr_on_typing(const struct device *behavior) {
     if (behavior == DEVICE_DT_GET(PTR_BEHAVIOR)) {
-        return;
+        return false;
     }
     k_mutex_lock(&ptr_lock, K_FOREVER);
     if (ptr_end_toggle(&state)) {
         LOG_DBG("scroll toggle cleared by typing");
     }
     k_mutex_unlock(&ptr_lock);
+    return true;
 }
 
 static int ptr_init(const struct device *dev) {

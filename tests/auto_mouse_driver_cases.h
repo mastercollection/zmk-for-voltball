@@ -13,7 +13,11 @@ static bool filter(const struct device *behavior, uint32_t position, uint32_t ke
 }
 
 static int typing_calls;
-static void count_typing(const struct device *behavior) { (void)behavior; typing_calls++; }
+/* Stands in for pointer mode: &ptr (device_scroll here) is a pointer control. */
+static bool count_typing(const struct device *behavior) {
+    typing_calls++;
+    return behavior != &device_scroll;
+}
 
 /* Voltball MOUSE layer shape: thumbs 35-39 are buttons, the rest &trans. */
 static void mouse_layer(void) {
@@ -157,7 +161,14 @@ int main(void) {
     /* Mouse layer on: its buttons do not. */
     activate();
     assert(!filter(&device_click, 36, 1, true) && typing_calls == 3);
+    /* A pointer control on an &trans combo (S+D scroll toggle) keeps auto mouse. */
+    activate();
+    typing_calls = 0;
+    assert(!filter(&device_scroll, 42, 0, true) && typing_calls == 1);
+    assert(active_layers[5]);
+    assert(!filter(&device_kp, 0, 20, true) && typing_calls == 2);
+    assert(!active_layers[5]);
     voltball_auto_mouse_set_typing_callback(NULL);
-    puts("PASS: actual driver: &trans exits and types, buttons stay, modifiers, hold-tap, combos, live keymap, cooldown, locks, typing callback, layer-off typing");
+    puts("PASS: actual driver: &trans exits and types, buttons stay, modifiers, hold-tap, combos, live keymap, cooldown, locks, typing callback, layer-off typing, pointer controls keep mouse");
     return 0;
 }

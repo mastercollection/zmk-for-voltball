@@ -42,10 +42,11 @@ static const struct exit_combo exit_combos[] = {
     LISTIFY(20, EXIT_COMBOS_BY_LENGTH, (), 0)};
 #endif
 
-/* Notified on each exit-key non-modifier press, whether or not auto mouse was on. */
-static void (*typing_callback)(const struct device *behavior);
+/* Asked on each exit-key non-modifier press, whether or not auto mouse was on.
+ * Returning false marks a pointer control (&ptr): it neither types nor exits. */
+static bool (*typing_callback)(const struct device *behavior);
 
-void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior)) {
+void voltball_auto_mouse_set_typing_callback(bool (*callback)(const struct device *behavior)) {
     typing_callback = callback;
 }
 
@@ -117,10 +118,13 @@ void voltball_auto_mouse_filter(const struct device *behavior,
     const struct threshold_config *cfg = dev->config;
     struct threshold_data *data = dev->data;
     k_mutex_lock(&data->lock, K_FOREVER);
-    if (!is_exit_key(cfg->mouse_layer, event.position)) {
-        k_mutex_unlock(&data->lock);
+    bool exit = is_exit_key(cfg->mouse_layer, event.position);
+    k_mutex_unlock(&data->lock);
+    /* Ask outside the lock: the callback takes pointer mode's own lock. */
+    if (!exit || (typing_callback && !typing_callback(behavior))) {
         return;
     }
+    k_mutex_lock(&data->lock, K_FOREVER);
     int64_t now = k_uptime_get();
     for (int i = 0; i < ZMK_KEYMAP_LAYERS_LEN; i++) {
         zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(i);
@@ -131,9 +135,6 @@ void voltball_auto_mouse_filter(const struct device *behavior,
         }
     }
     k_mutex_unlock(&data->lock);
-    if (typing_callback) {
-        typing_callback(behavior);
-    }
 }
 
 static int threshold_handle_event(const struct device *dev, struct input_event *event,
