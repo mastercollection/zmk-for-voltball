@@ -1,10 +1,13 @@
 # Prospector landscape mascot
 
-280×240 layout: layer at top left; Caps / NumLock at top right;
+280×240 layout: layer at top left; Scroll / Caps / NumLock at top right;
 transparent animated mascot in the center; upstream Prospector modifier symbols
 on the right; left/right batteries and WPM at the bottom. No USB indicator.
 
-- Caps and NumLock use the active host's HID LED report.
+- Caps and NumLock use the active host's HID LED report. The Scroll box lights
+  while `&ptr` scroll mode is on (toggle or hold).
+- A speed key press (`&ptr PTR_SPD_*`) shows the current ratio, e.g. `x3/2`, in
+  the WPM slot for one second in the accent color, then WPM returns.
 - Typing starts the three-pose run cycle immediately. It stops 850 ms after the
   last non-modifier key-down. Frame interval is 120–50 ms based on ZMK WPM.
 - Battery labels show OFF when disconnected and N/A until an actual report.
