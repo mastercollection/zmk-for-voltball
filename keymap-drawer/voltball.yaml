@@ -41,7 +41,7 @@ layers:
   - BACKSPACE
   - {t: DEL, h: FUNC}
   - {t: ENTER, h: SYM}
-  - {t: TAB, h: MOUSE}
+  - PLAY PAUSE
   - ENTER
   SYM:
   - Sft+"
@@ -256,7 +256,7 @@ layers:
   - '&mkp MB1'
   - '&mkp MB4'
   - '&mkp MB5'
-  - {type: held}
+  - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   BT:
   - F1
