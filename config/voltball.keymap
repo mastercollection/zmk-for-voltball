@@ -161,69 +161,84 @@
     combos {
         compatible = "zmk,combos";
 
+        // All combos: 20ms window, and only after 150ms idle so typing rolls
+        // (ㄴㅇ on S+D etc.) never fire a combo and swallow the letters.
+
         c1 {
             bindings = <&kp LBKT>;
             key-positions = <3 2>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c2 {
             bindings = <&kp RBKT>;
             key-positions = <6 7>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c3 {
             bindings = <&kp LPAR>;
             key-positions = <13 12>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c4 {
             bindings = <&kp RPAR>;
             key-positions = <16 17>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c5 {
             bindings = <&kp LBRC>;
             key-positions = <23 22>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c6 {
             bindings = <&kp RBRC>;
             key-positions = <28 29>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c7 {
             bindings = <&kp BSLH>;
             key-positions = <4 5>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c8 {
             bindings = <&kp PIPE>;
             key-positions = <14 15>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         c9 {
             bindings = <&kp TAB>;
             key-positions = <18 17>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         combo10 {
             bindings = <&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG>;
             key-positions = <11 12>;
+            timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
 
         caps_word_combo {
             bindings = <&caps_word>;
             key-positions = <29 30>;
             timeout-ms = <20>;
+            require-prior-idle-ms = <150>;
         };
     };
 
