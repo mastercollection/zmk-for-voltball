@@ -26,7 +26,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 검증한 ZMK main SHA 고정. v0.3 미사용.
 - main `2eda3c9`의 42키 바인딩, hold-tap, 10개 combo를 보존한다. SCROLL 레이어만 `&ptr` 스크롤 모드로 대체해 7개 레이어다.
 - 레이어 순서: BASE 0 / SYM 1 / NAVI 2 / FUNC 3 / NUM 4 / MOUSE 5 / BT 6.
-- 홈로우 수정키(A S D F / J K L ;): urob의 timeless 방식(`&hml`/`&hmr`). Shift(F, J)는 `&hsl`/`&hsr`로 빠른 타이핑 판정을 60ms로 줄여 단어 중간 Shift(한글 쌍자음, ㅒ ㅖ)를 허용한다. 반대손 Shift를 쓴다(ㅆ = J+T, ㅖ = F+P). tapping term 200ms, balanced, 반대손·엄지 키와 함께일 때만 홀드, 직전 입력 후 150ms 안에는 항상 탭, 같은 손 수정키끼리는 겹쳐 누르기 가능.
+- 홈로우 수정키(A S D F / J K L ;): urob의 timeless 방식(`&hml`/`&hmr`). 빠른 타이핑 판정(require-prior-idle)은 100ms로, 아주 빠른 롤만 글자로 처리하고 단어 중간 Shift(한글 쌍자음, ㅒ ㅖ)는 허용한다. 반대손 Shift를 쓴다(ㅆ = J+T, ㅖ = F+P). tapping term 200ms, balanced, 반대손·엄지 키와 함께일 때만 홀드, 직전 입력 후 100ms 안에는 항상 탭, 같은 손 수정키끼리는 겹쳐 누르기 가능.
 - 콤마+마침표 콤보: caps-word. 다음 단어 하나를 대문자로 입력하고 Space·문장부호에서 꺼진다(`_`, `-`, 숫자는 유지).
 - 리더 키(`&leader`, urob `zmk-leader-key`): BT 레이어(오른손 안쪽 `&mo 6` 홀드)의 W 자리와 P 자리. 탭한 뒤 순서대로 입력한다.
   - `B O O T` 부트로더 / `R E S E T` 재시작: 리더를 누른 쪽 반쪽에 적용(왼쪽은 W 자리, 오른쪽은 P 자리 리더).
