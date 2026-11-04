@@ -322,3 +322,5 @@ combos:
   k: TAB
 - p: [11, 12]
   k: SCRL hold/tap
+- p: [29, 30]
+  k: '&caps_word'
