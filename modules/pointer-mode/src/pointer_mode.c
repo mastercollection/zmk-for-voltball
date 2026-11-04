@@ -127,8 +127,8 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
 #if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
 void voltball_auto_mouse_set_typing_callback(void (*callback)(const struct device *behavior));
 
-/* Left-hand typing ends a latched drag scroll, like it ends auto mouse.
- * &ptr itself is exempt so a left-hand toggle key can switch scroll off. */
+/* Typing (an &trans key on MOUSE) ends a latched drag scroll, like auto mouse.
+ * &ptr itself is exempt so its own toggle key can switch scroll off. */
 static void ptr_on_typing(const struct device *behavior) {
     if (behavior == DEVICE_DT_GET(PTR_BEHAVIOR)) {
         return;

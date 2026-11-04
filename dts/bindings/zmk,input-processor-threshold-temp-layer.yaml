@@ -3,8 +3,8 @@
 
 description: |
   Latched auto-mouse layer activated by accumulated pointer movement.
-  Cells are layer index and timeout (must be zero). Resolved non-modifier
-  actions at typing-positions cancel the layer without emitting press or release.
+  Cells are layer index and timeout (must be zero). A non-modifier press on a key
+  that is &trans on that layer cancels it and is delivered normally (QMK style).
   Requires the pinned ZMK behavior-dispatch hook.
 
 compatible: "zmk,input-processor-threshold-temp-layer"
@@ -23,15 +23,5 @@ properties:
     type: int
     default: 0
     description: |
-      Suppress activation after a non-modifier action at typing-positions.
-      A swallowed action also blocks activation until release, then restarts
-      this delay. Suppressed movement is discarded, not accumulated.
-
-  typing-positions:
-    type: array
-    required: true
-    description: |
-      Physical positions whose first non-modifier action is swallowed to exit
-      auto mouse, including mouse, scroll, layer and no-op bindings. Only key
-      press/sticky modifier actions are exempt; hold-taps resolve before filtering.
-      Combos containing any of these positions follow the same rule.
+      Suppress activation after a non-modifier press on an exit (&trans) key.
+      Suppressed movement is discarded, not accumulated.

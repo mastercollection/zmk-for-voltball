@@ -10,7 +10,7 @@ config ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER
     help
       Latch the mouse layer after pointer motion reaches the threshold.
       Requires the pinned ZMK behavior hook installed by patch_auto_mouse.py.
-      Swallow the first left-hand non-modifier action to exit the layer.
-      Modifier actions remain normal; consumed releases are also swallowed.
+      A non-modifier press on a key that is &trans on the layer exits it and
+      is still delivered. Modifier actions keep the layer.
 
 endif # ZMK_POINTING

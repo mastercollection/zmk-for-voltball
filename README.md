@@ -28,7 +28,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 레이어 순서: BASE 0 / SYM 1 / NAVI 2 / FUNC 3 / NUM 4 / MOUSE 5 / BT 6.
 - B 오른쪽: 음소거. N 왼쪽: BT 순간 활성화. S+D 콤보: 탭하면 스크롤 모드 토글, 누르고 있으면 그동안만 스크롤(`&ptr_ht`).
 - 맨 아래 왼쪽에서 두 번째(index 33): GUI. 그 오른쪽(index 34): Alt. 기존 main과 동일하게 Studio unlock 키는 없다.
-- PAW3222: 오른쪽 SPI/IRQ 유지, 950 CPI. 자동 MOUSE 임계값 100, 시간 제한 없이 유지. 왼손 수정키 이외 첫 입력은 버리고 해제한다. 해당 키를 뗀 뒤 200ms 동안 잔여 움직임을 무시한다. NAVI에서 방향키.
+- PAW3222: 오른쪽 SPI/IRQ 유지, 950 CPI. 자동 MOUSE 임계값 100, 시간 제한 없이 유지. MOUSE에서 `&trans`인 키를 누르면 해제하고 그 키는 정상 입력한다. NAVI에서 방향키.
 - Prospector: 240×280 LCD, 고정 밝기 50%, 조도 센서 및 해당 I2C 비활성화. 터치 UI 없음.
 - 화면: 280×240 가로 배치, 타이핑 캐릭터, 기본 모디파이어, Caps/NumLock, WPM, 양쪽 배터리. 배터리 막대는 50% 이상 녹색, 20~49% 앰버, 20% 미만 빨강. 첫 보고 전 N/A.
 - AA/저전압/5분 광고 절전/GPIO 설정은 Voltball 양쪽에만 적용.
@@ -57,10 +57,8 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 기본 배치: MOUSE 레이어 O 자리 속도 내림, P 자리 속도 올림. 스크롤은 MOUSE와 별도 모드라 어느 레이어에서든 S+D 콤보로 쓴다: 탭(200ms 미만)은 토글, 홀드는 누르는 동안만 스크롤(`&ptr_ht PTR_SCRL_MO PTR_SCRL_TOG`).
 - 포인터 단계: ×1/4, ×1/2, ×3/4, **×1**, ×3/2, ×2, ×3. 스크롤 단계: ×1/20, ×1/15, **×1/10**, ×1/7, ×1/5, ×1/3 (Y 반전). 굵은 값이 기본이며 `voltball-trackball-processing.dtsi`의 `zip_pointer_mode`에서 바꾼다.
 - 단계는 설정 저장소에 저장되어 재부팅 후에도 유지된다. 스크롤 모드는 항상 꺼진 상태로 시작한다.
-- 스크롤 토글은 왼손 수정키 이외 입력이 들어오면 꺼진다(자동 MOUSE 해제와 같은 기준). `&ptr` 키 자체와 누르는 동안 스크롤(`PTR_SCRL_MO`)은 예외다. 스크롤 상태에 갇히지 않게 하기 위함이다.
-- S+D는 왼손 콤보라 자동 MOUSE가 켜져 있으면 첫 입력은 MOUSE 해제로 소비된다. 그때는 한 번 더 누른다.
+- 스크롤 토글은 자동 MOUSE 해제와 같은 기준(MOUSE에서 `&trans`인 키, 수정키 제외)으로 꺼진다. `&ptr` 키 자체와 누르는 동안 스크롤(`PTR_SCRL_MO`)은 예외다.
 - 스크롤 모드는 자동 MOUSE 판정보다 먼저 이동을 휠로 바꾸므로 스크롤 중에는 자동 MOUSE가 켜지지 않는다. 자동 MOUSE 임계값은 속도 배율 적용 전 센서 값으로 판정한다.
-- 키는 오른쪽에 둔다. 자동 MOUSE 중 왼손 키의 첫 입력은 해제용으로 소비되므로 왼쪽의 `&ptr` 키는 첫 누름이 무시된다.
 - `config/west.yml`: 외부 모듈 SHA. 전체 활성 의존성은 `verification/40513302937/west-frozen.yml`.
 - `build.yaml`, `.github/workflows/build*.yml`: GitHub Actions 전용 6개 빌드 및 검증 자료 저장.
 
@@ -68,10 +66,11 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 
 ## 자동 MOUSE 유지 규칙
 
-- 볼을 멈춰도 자동 MOUSE는 유지된다. 오른손 키 입력은 해제하지 않는다.
-- 왼손 수정키 이외 첫 입력은 **동작하지 않고 자동 MOUSE만 해제**한다. 다음 입력부터 정상 동작한다. 문자뿐 아니라 클릭·스크롤·레이어·Studio unlock·미할당 키도 해제용이다. 왼손 키가 포함된 콤보도 같은 규칙을 따른다.
-- Ctrl·Shift·Alt·GUI와 sticky modifier는 정상 동작하며 자동 MOUSE를 유지한다. F 탭은 문자를 보내지 않고 해제하고, F 홀드의 Shift는 정상 동작한다. MOUSE에서 A/S/D는 수정키가 아닌 스크롤 바인딩이므로 해제용이다.
-- 버린 입력은 키를 뗄 때도 보내지 않는다. 키를 누른 동안 재활성화를 막고, 뗀 뒤 200ms 동안 잔여 움직임을 무시한다. 기존에 정상 전달된 키의 release는 보존한다.
-- 이 규칙에서는 왼쪽에 배치된 마우스 버튼도 클릭 대신 자동 MOUSE를 해제한다. 자동 해제 로직이 수동으로 잠근 MOUSE 레이어를 강제로 끄지는 않는다.
+- 볼을 멈춰도 자동 MOUSE는 유지된다.
+- **MOUSE 레이어에서 `&trans`인 키**를 누르면 자동 MOUSE가 해제되고, 그 키는 **그대로 입력된다**(QMK Keyball 방식). 양손 모두 같은 규칙이다.
+- MOUSE 레이어에 무언가 배치된 키(마우스 버튼, `&ptr` 등)는 해제하지 않는다. 판정은 동글의 실제 키맵을 읽으므로 Studio에서 MOUSE 레이어를 바꿔도 바로 반영된다.
+- Ctrl·Shift·Alt·GUI와 sticky modifier는 해제하지 않는다. hold-tap은 판정 후의 실제 동작으로 본다: F 홀드(Shift)는 유지, F 탭(문자)은 해제.
+- 콤보는 구성 키 중 하나라도 MOUSE에서 `&trans`이면 해제용이다.
+- 해제 키를 누른 뒤 200ms 동안 잔여 움직임을 무시한다. 수동으로 잠근 MOUSE 레이어는 강제로 끄지 않는다.
 - `tests/patch_auto_mouse.py`가 고정된 ZMK의 behavior dispatcher에 press/release 필터를 삽입한다. 투명 바인딩은 통과시키고 hold-tap 판정 후 실제 동작을 필터링한다. 사용자 정의 수정키 behavior는 별도 검토가 필요하다.
 - `python tests/check_auto_mouse.py`, `python tests/auto_mouse_driver_test.py`와 `tests/auto_mouse_test.c`는 설정·패치 및 호스트 회귀 검사다. Zephyr 빌드나 실물 BLE 검증을 대신하지 않는다.
