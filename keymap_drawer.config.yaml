@@ -1,5 +1,11 @@
 parse_config:
   mark_alternate_layer_activators: true
+  raw_binding_map:
+    "&ptr PTR_SPD_DN": "SPD -"
+    "&ptr PTR_SPD_UP": "SPD +"
+    "&ptr PTR_SPD_RST": "SPD RST"
+    "&ptr PTR_SCRL_TOG": "SCRL TOG"
+    "&ptr PTR_SCRL_MO": "SCRL"
 
 draw_config:
   append_colon_to_layer_header: false
