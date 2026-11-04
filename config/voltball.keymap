@@ -252,7 +252,7 @@
 &trans  &trans  &trans  &trans    &trans                            &trans    &trans  &trans  &ptr PTR_SPD_DN  &ptr PTR_SPD_UP
 &trans  &trans  &trans  &trans    &trans                            &trans    &trans  &trans  &trans           &trans
 &trans  &trans  &trans  &trans    &trans    &trans        &trans    &trans    &trans  &trans  &trans           &trans
-&trans  &trans  &trans  &mkp MB3  &mkp MB2  &mkp MB1      &mkp MB4  &mkp MB5                  &trans           &trans
+&trans  &trans  &trans  &mkp MB3  &mkp MB2  &mkp MB1      &mkp MB5  &mkp MB4                  &trans           &trans
             >;
 
             display-name = "MOUSE";
