@@ -74,6 +74,21 @@
             hold-trigger-key-positions = <0 1 2 3 4 10 11 12 13 14 20 21 22 23 24 25 32 33 34 35 36 37 38 39 40 41>;
             hold-trigger-on-release;
         };
+
+        // Leader: tap, then type a sequence. Bound on both halves of the BT
+        // layer so BOOT/RESET reach the half the leader was pressed on.
+        leader: leader {
+            compatible = "zmk,behavior-leader-key";
+            #binding-cells = <0>;
+            boot { sequence = <B O O T>; bindings = <&bootloader>; };
+            reset { sequence = <R E S E T>; bindings = <&sys_reset>; };
+            bt0 { sequence = <B N0>; bindings = <&bt BT_SEL 0>; };
+            bt1 { sequence = <B N1>; bindings = <&bt BT_SEL 1>; };
+            bt2 { sequence = <B N2>; bindings = <&bt BT_SEL 2>; };
+            bt3 { sequence = <B N3>; bindings = <&bt BT_SEL 3>; };
+            btclr { sequence = <B C>; bindings = <&bt BT_CLR>; };
+            spd { sequence = <S P D>; bindings = <&ptr PTR_SPD_RST>; };
+        };
     };
 
     combos {
@@ -211,7 +226,7 @@
 
         BT {
             bindings = <
-&kp F1  &trans  &trans  &trans  &trans                      &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &trans
+&kp F1  &leader  &trans  &trans  &trans                     &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &leader
 &trans  &trans  &trans  &trans  &trans                      &trans        &trans        &trans        &trans        &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans        &trans        &trans        &trans        &trans
 &trans  &trans  &trans  &trans  &trans  &trans      &trans  &trans                                    &trans        &trans

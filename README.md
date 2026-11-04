@@ -28,6 +28,9 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 레이어 순서: BASE 0 / SYM 1 / NAVI 2 / FUNC 3 / NUM 4 / MOUSE 5 / BT 6.
 - 홈로우 수정키(A S D F / J K L ;): urob의 timeless 방식(`&hml`/`&hmr`). tapping term 200ms, balanced, 반대손·엄지 키와 함께일 때만 홀드, 직전 입력 후 150ms 안에는 항상 탭, 같은 손 수정키끼리는 겹쳐 누르기 가능.
 - 콤마+마침표 콤보: caps-word. 다음 단어 하나를 대문자로 입력하고 Space·문장부호에서 꺼진다(`_`, `-`, 숫자는 유지).
+- 리더 키(`&leader`, urob `zmk-leader-key`): BT 레이어(오른손 안쪽 `&mo 6` 홀드)의 W 자리와 P 자리. 탭한 뒤 순서대로 입력한다.
+  - `B O O T` 부트로더 / `R E S E T` 재시작: 리더를 누른 쪽 반쪽에 적용(왼쪽은 W 자리, 오른쪽은 P 자리 리더).
+  - `B 0`~`B 3` BT 프로필 선택, `B C` 현재 BT 프로필 지우기, `S P D` 포인터 속도 기본값.
 - B 오른쪽: 음소거. N 왼쪽: BT 순간 활성화. S+D 콤보: 탭하면 스크롤 모드 토글, 누르고 있으면 그동안만 스크롤(`&ptr_ht`).
 - 맨 아래 왼쪽에서 두 번째(index 33): GUI. 그 오른쪽(index 34): Alt. 기존 main과 동일하게 Studio unlock 키는 없다.
 - PAW3222: 오른쪽 SPI/IRQ 유지, 950 CPI. 자동 MOUSE 임계값 100, 시간 제한 없이 유지. MOUSE에서 `&trans`인 키를 누르면 해제하고 그 키는 정상 입력한다. NAVI에서 방향키.
