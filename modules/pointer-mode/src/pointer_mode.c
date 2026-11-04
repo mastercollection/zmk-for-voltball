@@ -35,7 +35,6 @@ BUILD_ASSERT(POINTER_STEPS <= UINT8_MAX && SCROLL_STEPS <= UINT8_MAX, "Too many 
 #define PTR_BEHAVIOR DT_INST(0, zmk_behavior_voltball_pointer)
 BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(zmk_behavior_voltball_pointer) == 1,
              "Voltball pointer mode supports one &ptr behavior");
-DEVICE_DT_DECLARE(PTR_BEHAVIOR);
 
 static const bool scroll_invert_y = DT_INST_PROP(0, scroll_invert_y);
 
