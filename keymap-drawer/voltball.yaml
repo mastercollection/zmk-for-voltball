@@ -235,7 +235,7 @@ layers:
   - '&mkp MB4'
   - '&mkp MB3'
   - '&mkp MB5'
-  - SCRL TOG
+  - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
@@ -321,4 +321,4 @@ combos:
 - p: [18, 17]
   k: TAB
 - p: [11, 12]
-  k: SCRL
+  k: SCRL hold/tap
