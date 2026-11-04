@@ -38,7 +38,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 - 화면: 280×240 가로 배치, 타이핑 캐릭터, 기본 모디파이어, Caps/NumLock, WPM, 양쪽 배터리. 배터리 막대는 50% 이상 녹색, 20~49% 앰버, 20% 미만 빨강. 첫 보고 전 N/A.
 - AA/저전압/5분 광고 절전/GPIO 설정은 Voltball 양쪽에만 적용.
 - Prospector: 슬립하지 않는다(양쪽이 연결할 central). 키·트랙볼 입력이 1분 없으면 화면과 백라이트를 끄고, 입력이 들어오면 다시 켠다.
-- Voltball 양쪽: 키·트랙볼 입력이 15분 없으면 깊은 슬립(ZMK 기본값). 키를 눌러 깨우며 재부팅·재연결에 1~2초 걸리고 깨운 키는 입력되지 않는다. 트랙볼로는 깨울 수 없다.
+- Voltball 양쪽: 키·트랙볼 입력이 15분 없으면 깊은 슬립(ZMK 기본값). 키나 트랙볼(오른쪽, 실험 기능 `modules/trackball-wake`)로 깨우며 재부팅·재연결에 1~2초 걸리고 깨운 입력은 전달되지 않는다.
 - ZMK Studio는 끈다. 키맵은 저장소의 `config/voltball.keymap`(keymap-editor)으로만 편집한다.
 
 ![키맵](keymap-drawer/voltball.svg)

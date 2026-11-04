@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT
+
+config VOLTBALL_TRACKBALL_WAKE
+    bool "Wake from deep sleep on trackball motion (experimental)"
+    default y
+    depends on ZMK_SLEEP && PM_DEVICE
+    depends on $(dt_nodelabel_bool_prop,trackball_central,wakeup-source)
+    help
+      Keeps the PAW3222 out of ZMK's suspend so it stays in its own low-power
+      sleep with the motion pin armed; motion then wakes the half from deep sleep.
