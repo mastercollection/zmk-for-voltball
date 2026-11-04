@@ -1,4 +1,4 @@
-"""Structural keymap checks. Bindings are edited freely (keymap-editor, Studio)."""
+"""Structural keymap checks. Bindings are edited freely (keymap-editor)."""
 from pathlib import Path
 import re
 

@@ -6,8 +6,8 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 ## 백업
 
 1. 현재 동작하는 양쪽 UF2와 그 빌드 소스/설정을 별도 보관한다. 이전 Actions 아티팩트가 있다면 만료 전에 다운로드한다.
-2. Studio에서 수정한 각 레이어와 바인딩을 기록한다. 저장된 설정이 새 `.keymap`보다 우선하므로 펌웨어 소스만으로 Studio 변경을 백업했다고 간주하지 않는다.
-3. 현재 ZIP, 새 작업 브랜치, 최종 아티팩트를 각각 보관한다. UF2 파일 보관은 BLE 본딩과 Studio 저장값의 백업을 의미하지 않는다.
+2. 현재 키맵 파일(`config/voltball.keymap`)이 커밋되어 있는지 확인한다.
+3. 현재 ZIP, 새 작업 브랜치, 최종 아티팩트를 각각 보관한다. UF2 파일 보관은 BLE 본딩의 백업을 의미하지 않는다.
 
 ## 장치별 파일
 
@@ -30,13 +30,11 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 7. 오른쪽 키와 트랙볼 입력을 확인한다. PC에 양쪽 Voltball을 Bluetooth 키보드로 등록하지 않는다. PC 입력 연결은 Prospector USB다.
 8. 순서가 뒤바뀌거나 이전 본딩 때문에 연결되지 않으면 세 장치를 다시 초기화하고 4–7단계를 반복한다.
 
-## Studio 저장값과 물리 배열
+## 키맵과 물리 배열
 
-- Chrome/Edge에서 https://zmk.studio/ 를 열고 USB로 연결된 Prospector를 선택한다. 맨 아래 왼쪽에서 두 번째 키(index 33)로 Studio 잠금을 해제한다.
-- 새 소스 키맵을 사용하려면 Studio의 **Restore Stock Settings**를 실행한다. 저장하지 않은 작업은 먼저 기록한다. 이 동작은 Studio 설정 복원이며 세 장치 본딩 초기화 절차와 구분한다.
-- 변경 후 저장하고 USB를 다시 연결해 유지 여부를 확인한다.
-- Studio는 펌웨어에 정의된 42키 물리 배열을 표시하고 바인딩을 편집한다. 물리 좌표 자체를 새로 만드는 기능은 지원하지 않는다. 좌표 변경은 `config/boards/shields/voltball/voltball-layout.dtsi`에서 키맵/transform과 같은 순서를 유지해 수정하고 Actions로 재빌드해야 한다.
-- combo, hold-tap 시간, 입력 프로세서 레이어 지정은 소스 설정이다. Studio에서 바인딩을 바꾸더라도 이 설정까지 자동으로 변경되지는 않는다.
+- ZMK Studio는 꺼져 있다. 키맵은 `config/voltball.keymap`만 기준이다.
+- 이전 펌웨어에서 Studio로 저장한 값이 남아 있으면 새 키맵보다 우선할 수 있다. 키맵이 반영되지 않으면 `prospector_settings_reset.uf2`로 동글 설정을 초기화한 뒤 다시 페어링한다.
+- 물리 좌표 변경은 `config/boards/shields/voltball/voltball-layout.dtsi`에서 키맵/transform과 같은 순서를 유지해 수정하고 Actions로 재빌드한다.
 
 ## 복구
 
@@ -52,13 +50,13 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 
 | 항목 | 확인할 결과 |
 | --- | --- |
-| 42키 위치 | 모든 위치를 한 번씩 눌러 실제 위치, matrix transform, Studio 표시가 일치함 |
+| 42키 위치 | 모든 위치를 한 번씩 눌러 실제 위치, matrix transform, keymap-drawer 그림이 일치함 |
 | 레이어 | TOTEM의 6개 레이어 바인딩과 확정된 추가 레이어 접근이 일치함 |
 | modifier/hold-tap | 홈로우 modifier, 빠른 탭, 긴 홀드, 연타, 반대손 조합이 원본 동작과 일치함 |
 | combo | 원본 9개 combo가 옮겨진 키 위치와 20ms 조건에서 작동함 |
 | 트랙볼 기본 | 오른쪽 센서 이동이 Prospector USB 포인터 이동으로 전달됨 |
 | 자동 레이어 | 이동 임계값 100에서 켜지고 멈춘 뒤에도 유지. 양손 문자 키(MOUSE에서 &trans)는 해제하면서 그 문자가 입력됨. 엄지 마우스 버튼·SPD 키·F의 Shift 홀드·Ctrl/Alt/GUI는 유지 |
-| 해제 직후 | 해제 키를 누른 뒤 200ms 잔여 이동은 무시. Studio에서 MOUSE 레이어 키를 바꾸면 해제 대상도 바로 바뀜 |
+| 해제 직후 | 해제 키를 누른 뒤 200ms 잔여 이동은 무시. |
 | 수동 홀드 | TAB 홀드로 켠 MOUSE는 자동 해제로 강제 취소되지 않음 |
 | 방향키 | NAVI에서만 변환되고 방향, 속도, 잔여 이동 처리에 이상 없음 |
 | 스크롤 모드 | S+D 탭으로 켜지고 다시 탭하면 꺼짐. S+D 홀드 중에만 스크롤되고 떼면 원래 모드로 돌아옴. 세로 방향이 기존 SCROLL 레이어와 같고, 스크롤 중 자동 MOUSE가 켜지지 않음. 토글 후 문자 입력 시 스크롤이 꺼지고 Ctrl/Shift는 유지 |
@@ -67,7 +65,6 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 | 화면 | 활성 레이어가 맞고 왼쪽/오른쪽 연결을 각각 켜고 끌 때 올바른 슬롯이 바뀜 |
 | 배터리 | 실제 peripheral 보고값을 표시하고 미수신/연결 끊김을 정상 수치로 오인하지 않음 |
 | 고정 밝기 | 조도 센서 없이 일정 밝기로 부팅되고 터치가 불필요한 입력을 만들지 않음 |
-| Studio | USB 연결, unlock, 편집, 저장, 재연결 후 유지, Restore Stock Settings가 작동함 |
 | 광고 절전 | USB를 뺀 Voltball이 central 미연결 약 5분 후 절전하고 키/리셋으로 복귀함 |
 | 연결 중 절전 | 유휴 후 깨움과 키 입력·트랙볼 재개가 작동함. 실제 소비전류는 별도 측정 |
 | 저전압 | 설정된 ADC 환산 기준에서 차단되며 정상 배터리 교체 후 복귀함 |
@@ -77,6 +74,6 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 
 ## 근거
 
-- 고정한 ZMK 소스의 `docs/docs/features/studio.md` 및 `docs/docs/troubleshooting/connection-issues.mdx`.
+- 고정한 ZMK 소스의 `docs/docs/troubleshooting/connection-issues.mdx`.
 - 고정한 Prospector 모듈 README의 peripheral 페어링 순서 설명.
 - 최종 Actions 실행 URL, 파일 체크섬, 메모리 사용량, 검증 결과는 BUILD_REPORT.md 및 verification/40513302937에 기록했다.
