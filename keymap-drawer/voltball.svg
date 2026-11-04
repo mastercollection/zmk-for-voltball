@@ -356,9 +356,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -574,9 +572,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -796,9 +792,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -1020,9 +1014,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -1248,9 +1240,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -1292,13 +1282,13 @@ path.combo {
 <g transform="translate(673, 42)" class="key keypos-8">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
 <text x="0" y="0" class="key tap">
-<tspan x="0" dy="-0.6em" style="font-size: 70%">&amp;ptr</tspan><tspan x="0" dy="1.2em" style="font-size: 70%">PTR_SPD_DN</tspan>
+<tspan x="0" dy="-0.6em">SPD</tspan><tspan x="0" dy="1.2em">-</tspan>
 </text>
 </g>
 <g transform="translate(729, 63)" class="key keypos-9">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
 <text x="0" y="0" class="key tap">
-<tspan x="0" dy="-0.6em" style="font-size: 70%">&amp;ptr</tspan><tspan x="0" dy="1.2em" style="font-size: 70%">PTR_SPD_UP</tspan>
+<tspan x="0" dy="-0.6em">SPD</tspan><tspan x="0" dy="1.2em">+</tspan>
 </text>
 </g>
 <g transform="translate(28, 119)" class="key trans keypos-10">
@@ -1346,7 +1336,7 @@ path.combo {
 <g transform="translate(729, 119)" class="key keypos-19">
 <rect rx="6" ry="6" x="-26" y="-26" width="52" height="52" class="key"/>
 <text x="0" y="0" class="key tap">
-<tspan x="0" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="0" dy="1.2em" style="font-size: 64%">PTR_SCRL_T…</tspan>
+<tspan x="0" dy="-0.6em">SCRL</tspan><tspan x="0" dy="1.2em">TOG</tspan>
 </text>
 </g>
 <g transform="translate(28, 175)" class="key trans keypos-20">
@@ -1482,9 +1472,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>
@@ -1708,9 +1696,7 @@ path.combo {
 </g>
 <g class="combo combopos-9">
 <rect rx="6" ry="6" x="98" y="78" width="28" height="26" class="combo"/>
-<text x="112" y="91" class="combo tap">
-<tspan x="112" dy="-0.6em" style="font-size: 64%">&amp;ptr</tspan><tspan x="112" dy="1.2em" style="font-size: 64%">PTR_SCRL_MO</tspan>
-</text>
+<text x="112" y="91" class="combo tap">SCRL</text>
 </g>
 </g>
 </g>

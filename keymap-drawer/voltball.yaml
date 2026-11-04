@@ -224,8 +224,8 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
-  - '&ptr PTR_SPD_DN'
-  - '&ptr PTR_SPD_UP'
+  - SPD -
+  - SPD +
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
@@ -235,7 +235,7 @@ layers:
   - '&mkp MB4'
   - '&mkp MB3'
   - '&mkp MB5'
-  - '&ptr PTR_SCRL_TOG'
+  - SCRL TOG
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
@@ -321,4 +321,4 @@ combos:
 - p: [18, 17]
   k: TAB
 - p: [11, 12]
-  k: '&ptr PTR_SCRL_MO'
+  k: SCRL
