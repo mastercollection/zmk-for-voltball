@@ -51,7 +51,8 @@
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            // 100ms: blocks only very fast rolls, so mid-word Shift (ㅆ ㅒ) still holds.
+            require-prior-idle-ms = <100>;
             bindings = <&kp>, <&kp>;
 
             // Right hand (incl. bottom row 38-41) + left thumbs 35-37.
@@ -67,7 +68,8 @@
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
-            require-prior-idle-ms = <150>;
+            // 100ms: blocks only very fast rolls, so mid-word Shift (ㅆ ㅒ) still holds.
+            require-prior-idle-ms = <100>;
             bindings = <&kp>, <&kp>;
 
             // Left hand (incl. bottom row 32-37) + right thumbs 38-39.

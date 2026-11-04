@@ -4,7 +4,9 @@
 transparent animated mascot in the center; upstream Prospector modifier symbols
 on the right; left/right batteries and WPM at the bottom. No USB indicator.
 
-- Caps and NumLock use the active host's HID LED report. The Scroll box lights
+- Caps and NumLock use the active host's HID LED report. Caps-word lights the
+  Caps box in amber (#FFB802) when Caps Lock is off; the Shift symbol on the
+  right shows only a held Shift. The Scroll box lights
   while `&ptr` scroll mode is on (toggle or hold).
 - A speed key press (`&ptr PTR_SPD_*`) shows the current ratio, e.g. `x3/2`, in
   the WPM slot for one second in the accent color, then WPM returns.

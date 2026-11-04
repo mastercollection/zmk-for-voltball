@@ -8,6 +8,7 @@
 #include <zmk/events/battery_state_changed.h>
 #include <zmk/events/split_central_status_changed.h>
 #include <zmk/events/activity_state_changed.h>
+#include <zmk/events/caps_word_state_changed.h>
 #include <zmk/keymap.h>
 #include <zmk/hid_indicators.h>
 #include <zmk/wpm.h>
@@ -26,7 +27,7 @@ static lv_obj_t *pet, *layer_label, *speed_label;
 enum { IND_SCROLL, IND_CAPS, IND_NUM, IND_COUNT };
 static lv_obj_t *lock_boxes[IND_COUNT], *lock_glyphs[IND_COUNT];
 static lv_obj_t *battery_labels[2], *battery_bars[2];
-static bool previous_locks[IND_COUNT];
+static uint32_t previous_colors[IND_COUNT];
 /* A speed key press shows the new ratio in the WPM slot for this long. */
 #define SPEED_FLASH_MS 1000
 static uint32_t speed_flash_until, previous_speed_presses;
@@ -40,6 +41,9 @@ static const uint32_t active_color = 0x00ffe5;
 K_MUTEX_DEFINE(mascot_mutex);
 static struct mascot_input input_state;
 static struct { bool connected, reported; uint8_t level; } batteries[2];
+static bool caps_word_active;
+/* Caps box: host Caps Lock in the accent color, caps-word alone in amber. */
+static const uint32_t caps_word_color = 0xffb802;
 
 static int mascot_events(const zmk_event_t *eh) {
     k_mutex_lock(&mascot_mutex, K_FOREVER);
@@ -57,6 +61,10 @@ static int mascot_events(const zmk_event_t *eh) {
         batteries[bat->source].level = MIN(bat->state_of_charge, 100);
         batteries[bat->source].reported = true;
     }
+    const struct zmk_caps_word_state_changed *caps_word = as_zmk_caps_word_state_changed(eh);
+    if (caps_word) {
+        caps_word_active = caps_word->active;
+    }
     const struct zmk_split_central_status_changed *conn =
         as_zmk_split_central_status_changed(eh);
     if (conn && conn->slot < 2) {
@@ -72,6 +80,7 @@ ZMK_LISTENER(mascot_state, mascot_events);
 ZMK_SUBSCRIPTION(mascot_state, zmk_keycode_state_changed);
 ZMK_SUBSCRIPTION(mascot_state, zmk_peripheral_battery_state_changed);
 ZMK_SUBSCRIPTION(mascot_state, zmk_split_central_status_changed);
+ZMK_SUBSCRIPTION(mascot_state, zmk_caps_word_state_changed);
 
 #if !IS_ENABLED(CONFIG_PROSPECTOR_USE_AMBIENT_LIGHT_SENSOR)
 /* Backlight follows ZMK activity (keys and trackball input); the panel itself
@@ -99,14 +108,18 @@ static lv_obj_t *text(lv_obj_t *parent, const char *value, const lv_font_t *font
     return label;
 }
 
-static void set_lock(int i, bool active) {
-    lv_obj_set_style_border_color(lock_boxes[i], lv_color_hex(active ? active_color : 0x37323c), 0);
-    lv_obj_set_style_bg_color(lock_boxes[i], lv_color_hex(active ? 0x002b27 : 0x000000), 0);
-    uint32_t color = active ? active_color : 0x77717d;
-    lv_obj_set_style_text_color(lock_glyphs[i], lv_color_hex(color), 0);
-    lv_obj_set_style_line_color(lock_glyphs[i], lv_color_hex(color), 0);
-    previous_locks[i] = active;
+/* color 0 = off. */
+static void set_indicator(int i, uint32_t color) {
+    lv_obj_set_style_border_color(lock_boxes[i], lv_color_hex(color ? color : 0x37323c), 0);
+    lv_obj_set_style_bg_color(lock_boxes[i], lv_color_hex(color == active_color ? 0x002b27 :
+                                                          color ? 0x2b2000 : 0x000000), 0);
+    uint32_t glyph = color ? color : 0x77717d;
+    lv_obj_set_style_text_color(lock_glyphs[i], lv_color_hex(glyph), 0);
+    lv_obj_set_style_line_color(lock_glyphs[i], lv_color_hex(glyph), 0);
+    previous_colors[i] = color;
 }
+
+static void set_lock(int i, bool active) { set_indicator(i, active ? active_color : 0); }
 
 static void screen_tick(lv_timer_t *timer) {
     ARG_UNUSED(timer);
@@ -115,6 +128,7 @@ static void screen_tick(lv_timer_t *timer) {
     uint8_t level[2];
     k_mutex_lock(&mascot_mutex, K_FOREVER);
     state = input_state;
+    bool caps_word = caps_word_active;
     for (int i = 0; i < 2; i++) {
         connected[i] = batteries[i].connected;
         reported[i] = batteries[i].reported;
@@ -149,13 +163,17 @@ static void screen_tick(lv_timer_t *timer) {
     uint8_t indicators = zmk_hid_indicators_get_current_profile();
     bool locks[] = { (indicators & BIT(HID_USAGE_LED_CAPS_LOCK - 1)) != 0,
                      (indicators & BIT(HID_USAGE_LED_NUM_LOCK - 1)) != 0 };
+    uint32_t colors[] = { locks[0] ? active_color : caps_word ? caps_word_color : 0,
+                          locks[1] ? active_color : 0 };
     for (int i = 0; i < 2; i++) {
-        if (locks[i] != previous_locks[IND_CAPS + i]) { set_lock(IND_CAPS + i, locks[i]); }
+        if (colors[i] != previous_colors[IND_CAPS + i]) { set_indicator(IND_CAPS + i, colors[i]); }
     }
 #if IS_ENABLED(CONFIG_ZMK_VOLTBALL_POINTER_MODE)
     struct voltball_ptr_status ptr;
     voltball_ptr_get_status(&ptr);
-    if (ptr.scroll != previous_locks[IND_SCROLL]) { set_lock(IND_SCROLL, ptr.scroll); }
+    if ((ptr.scroll ? active_color : 0) != previous_colors[IND_SCROLL]) {
+        set_lock(IND_SCROLL, ptr.scroll);
+    }
     if (speed_presses_seen && ptr.speed_presses != previous_speed_presses) {
         if (ptr.div == 1) { lv_label_set_text_fmt(speed_label, "x%d", (int)ptr.mul); }
         else { lv_label_set_text_fmt(speed_label, "x%d/%d", (int)ptr.mul, (int)ptr.div); }
