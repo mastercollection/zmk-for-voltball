@@ -65,6 +65,13 @@ static bool is_typing_position(uint32_t position) {
     return false;
 }
 
+/* Notified on each left-hand non-modifier press, whether or not it exits auto mouse. */
+static void (*typing_callback)(void);
+
+void voltball_auto_mouse_set_typing_callback(void (*callback)(void)) {
+    typing_callback = callback;
+}
+
 #define MATCH_DEVICE(n) || behavior == DEVICE_DT_GET(n)
 static bool is_deferred_behavior(const struct device *behavior) {
     /* Transparent bindings must fall through; hold-taps must resolve first. */
@@ -135,6 +142,9 @@ bool voltball_auto_mouse_filter(const struct device *behavior,
         data->swallowed_count++;
     }
     k_mutex_unlock(&data->lock);
+    if (typing_callback) {
+        typing_callback();
+    }
     return consume;
 }
 

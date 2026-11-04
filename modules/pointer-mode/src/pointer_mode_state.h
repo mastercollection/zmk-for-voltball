@@ -29,6 +29,16 @@ static inline void ptr_clear_remainders(struct ptr_state *s) {
     }
 }
 
+/* Typing ends a latched scroll; a held scroll key stays in control. */
+static inline bool ptr_end_toggle(struct ptr_state *s) {
+    if (!s->scroll_toggled) {
+        return false;
+    }
+    s->scroll_toggled = false;
+    ptr_clear_remainders(s);
+    return true;
+}
+
 /* Move one step within [0, count); returns true when the step changed. */
 static inline bool ptr_step(uint8_t *step, int direction, uint8_t count) {
     if (direction > 0 && *step + 1 < count) {

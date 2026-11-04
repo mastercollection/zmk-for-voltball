@@ -38,9 +38,16 @@ int main(void) {
     assert(ptr_scroll_active(&s));
     s.scroll_toggled = false;
     assert(!ptr_scroll_active(&s));
+    /* Typing ends only the latched toggle; a held scroll key keeps scrolling. */
+    s.scroll_toggled = true;
+    s.scroll_held = 1;
+    s.remainder[PTR_SCROLL_X] = 3;
+    assert(ptr_end_toggle(&s) && !s.scroll_toggled && s.remainder[PTR_SCROLL_X] == 0);
+    assert(ptr_scroll_active(&s) && !ptr_end_toggle(&s));
+    s.scroll_held = 0;
     s.remainder[PTR_SCROLL_Y] = 7;
     ptr_clear_remainders(&s);
     assert(s.remainder[PTR_SCROLL_Y] == 0);
-    puts("PASS: clamped steps, carried remainders, toggle and hold scroll mode");
+    puts("PASS: clamped steps, carried remainders, toggle and hold scroll mode, typing ends toggle");
     return 0;
 }

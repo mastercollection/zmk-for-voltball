@@ -120,10 +120,32 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
     return ZMK_INPUT_PROC_CONTINUE;
 }
 
+#if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
+void voltball_auto_mouse_set_typing_callback(void (*callback)(void));
+
+/* Left-hand typing ends a latched drag scroll, like it ends auto mouse. */
+static void ptr_on_typing(void) {
+    k_mutex_lock(&ptr_lock, K_FOREVER);
+    if (ptr_end_toggle(&state)) {
+        LOG_DBG("scroll toggle cleared by typing");
+    }
+    k_mutex_unlock(&ptr_lock);
+}
+
+static int ptr_init(const struct device *dev) {
+    ARG_UNUSED(dev);
+    voltball_auto_mouse_set_typing_callback(ptr_on_typing);
+    return 0;
+}
+#define PTR_INIT ptr_init
+#else
+#define PTR_INIT NULL
+#endif
+
 static const struct zmk_input_processor_driver_api ptr_processor_api = {
     .handle_event = ptr_handle_event,
 };
-DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
+DEVICE_DT_INST_DEFINE(0, PTR_INIT, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
                       &ptr_processor_api);
 
 /* &ptr behavior. Runs on the central, where the processor also lives. */

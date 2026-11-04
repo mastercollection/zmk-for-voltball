@@ -10,6 +10,9 @@ static bool filter(const struct device *behavior, uint32_t position, uint32_t ke
     return voltball_auto_mouse_filter(behavior, &binding, event, press);
 }
 
+static int typing_calls;
+static void count_typing(void) { typing_calls++; }
+
 static void activate(void) {
     memset(&data, 0, sizeof(data));
     memset(active_layers, 0, sizeof(active_layers));
@@ -127,6 +130,17 @@ int main(void) {
     assert(active_layers[5]);
     assert(threshold_handle_event(&mock_device, &wheel, 5, 500, NULL) == -EINVAL);
     assert(threshold_handle_event(&mock_device, &wheel, 256, 0, NULL) == -EINVAL);
-    puts("PASS: actual driver: swallowed press/release, modifiers, hold-tap, all left actions, right keys, combos, cooldown, locks");
+    /* Pointer mode hears every left non-modifier press, with or without auto mouse. */
+    voltball_auto_mouse_set_typing_callback(count_typing);
+    activate();
+    typing_calls = 0;
+    assert(filter(&device_kp, 0, 20, true) && typing_calls == 1);
+    assert(filter(&device_kp, 0, 20, false) && typing_calls == 1);
+    assert(!filter(&device_kp, 0, 20, true) && typing_calls == 2);
+    assert(!filter(&device_kp, 0, 20, false) && typing_calls == 2);
+    assert(!filter(&device_kp, 32, (7u << 16) | 0xe0, true) && typing_calls == 2);
+    assert(!filter(&device_kp, 5, 20, true) && typing_calls == 2);
+    voltball_auto_mouse_set_typing_callback(NULL);
+    puts("PASS: actual driver: swallowed press/release, modifiers, hold-tap, all left actions, right keys, combos, cooldown, locks, typing callback");
     return 0;
 }
