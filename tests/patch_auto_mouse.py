@@ -25,5 +25,7 @@ def apply(zmk):
     if actual != ZMK_REVISION:
         raise ValueError(f"ZMK revision changed: {actual}")
     path = zmk / "app/src/behavior.c"
+    # The CI module cache can hold a previously patched tree; start from the pinned file.
+    subprocess.run(["git", "-C", str(zmk), "checkout", "--", "app/src/behavior.c"], check=True)
     path.write_text(patch_source(path.read_text()))
     print("Patched ZMK: &trans key on MOUSE exits auto mouse; the action is still delivered")
