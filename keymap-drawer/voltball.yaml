@@ -44,38 +44,38 @@ layers:
   - {t: TAB, h: MOUSE}
   - ENTER
   SYM:
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
   - Sft+"
-  - ''''
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
   - Sft+&
   - Sft+*
   - Sft+~
+  - ''''
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - '='
+  - '`'
   - Sft+$
   - Sft+%
   - Sft+^
-  - '`'
+  - '='
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - Sft++
+  - Sft+~
   - Sft+!
   - Sft+@
   - Sft+#
-  - Sft+~
+  - Sft++
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
+  - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
