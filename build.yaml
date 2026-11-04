@@ -9,6 +9,12 @@ include:
     shield: voltball_dongle prospector_adapter
     snippet: prospector-fixed
     artifact-name: prospector
+  # 진단용: 깨어난 반쪽이 다시 연결되는 단계별 시간을 USB 시리얼 로그로 남김.
+  - board: xiao_ble//zmk
+    shield: voltball_dongle prospector_adapter
+    snippet: prospector-fixed zmk-usb-logging
+    cmake-args: -DCONFIG_VOLTBALL_WAKE_TRACE=y -DCONFIG_LOG_BUFFER_SIZE=16384
+    artifact-name: prospector_wake_trace
   - board: nice_nano@2.0.0//zmk
     shield: settings_reset
     artifact-name: voltball_left_settings_reset

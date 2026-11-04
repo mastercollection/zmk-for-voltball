@@ -6,8 +6,8 @@ import sys
 
 root = Path(sys.argv[1])
 sha = sys.argv[2]
-names = ["voltball_left", "voltball_right", "prospector", "voltball_left_settings_reset",
-         "voltball_right_settings_reset", "prospector_settings_reset"]
+names = ["voltball_left", "voltball_right", "prospector", "prospector_wake_trace",
+         "voltball_left_settings_reset", "voltball_right_settings_reset", "prospector_settings_reset"]
 report = {}
 for name in names:
     def text(suffix):
@@ -22,7 +22,9 @@ for name in names:
     assert "UINT8_MAX" in text("-prospector.patch")
     if name.endswith("settings_reset"):
         assert on("ZMK_SETTINGS_RESET_ON_START") and not on("ZMK_BLE"), name
-    elif name == "prospector":
+    elif name.startswith("prospector"):
+        trace = name == "prospector_wake_trace"
+        assert on("VOLTBALL_WAKE_TRACE") == trace and on("ZMK_USB_LOGGING") == trace, name
         assert on("ZMK_SPLIT_ROLE_CENTRAL") and on("ZMK_INPUT_SPLIT")
         assert conf["CONFIG_ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS"] == "2"
         assert not on("ZMK_STUDIO")
@@ -42,5 +44,5 @@ for name in names:
         assert on("VOLTBALL_TRACKBALL_WAKE") == (name == "voltball_right")
         assert on("ZMK_INPUT_SPLIT") == (name == "voltball_right")
     report[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
-assert len(list(root.glob("*.uf2"))) == 6
+assert len(list(root.glob("*.uf2"))) == 7
 print(json.dumps({"source_sha": sha, "firmware": report, "result": "PASS"}, indent=2))

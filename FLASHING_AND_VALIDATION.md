@@ -44,6 +44,29 @@ BUILD_REPORT.md의 성공 실행 40513302937에서 받은 파일을 사용한다
 - 부트로더 드라이브 자체가 나타나지 않는 경우 데이터 전송 가능한 USB 케이블과 포트를 확인한다. UF2 재플래시로 부트로더 손상을 복구할 수 있다고 가정하지 않는다. SWD 복구는 별도 절차다.
 - AA 저전압 차단 후에는 정상 배터리로 교체하고 다시 켠다. 낮은 배터리 상태에서 반복 리셋만 하지 않는다.
 
+## 깨어남 지연 진단
+
+딥슬립에서 깨어나는 것은 반쪽의 전체 재부팅이고, 그 뒤 동글과 BLE 재연결·암호화·서비스 탐색을 거쳐야 첫 입력이 PC에 도착한다. 어느 단계가 오래 걸리는지 보려면 진단용 동글 펌웨어 `prospector_wake_trace.uf2`를 쓴다. 평소 펌웨어(`prospector.uf2`)와 키맵·화면 동작은 같고, USB 시리얼 로그와 `[wake]` 기록만 추가된다.
+
+1. 동글에 `prospector_wake_trace.uf2`를 굽는다. 반쪽 펌웨어는 그대로 둔다.
+2. PC에서 동글의 USB 시리얼 포트(Windows는 장치 관리자의 COM 포트)를 연다. 예: PuTTY Serial, 또는 `python -m serial.tools.miniterm COM5 115200`.
+3. 한쪽 반쪽만 딥슬립에 들어가게 한 뒤 키 하나를 누르고, 입력이 나올 때까지 계속 누르거나 몇 번 더 누른다. 두 반쪽을 동시에 깨우면 "첫 입력"을 어느 쪽 것인지 구분할 수 없다.
+4. `[wake]` 줄만 본다. 시간은 그 반쪽의 광고를 처음 본 시점부터의 ms다.
+
+출력 형태(숫자는 예시):
+
+```
+[wake] xx:xx:xx:xx:xx:xx (random) adv seen (t=0, directed, rssi -48)
+[wake] ... connected (+120 ms)
+[wake] ... security level 2 err 0 (+450 ms)
+[wake] ... conn interval 7.50 ms latency 0 (+900 ms)
+[wake] ... first key (+2300 ms)
+```
+
+- 키를 누른 순간부터 `adv seen`까지는 동글이 볼 수 없다. 체감 지연(스톱워치)에서 `first key`의 ms를 빼면 반쪽의 재부팅·광고 시작 시간이 나온다.
+- `adv seen`→`connected`가 길면 스캔/광고 타이밍, `connected`→`first key`가 길면 암호화·서비스 탐색·구독 쪽이다.
+- 로그 단계는 ZMK 기본(DBG)이라 다른 줄이 많다. 진단이 끝나면 평소 `prospector.uf2`로 되돌린다.
+
 ## 실물 검증표
 
 각 항목에 장치/펌웨어 SHA, 조건, 실제 결과를 기록한다. 빌드 성공은 아래 항목의 통과를 증명하지 않는다.

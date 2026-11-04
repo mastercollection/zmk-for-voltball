@@ -1,5 +1,5 @@
 # Based on zmk 4dd95d7840eb3d5a3f59bb29fbf1ab054715ef85.
-# Local changes: pinned Actions, exact-source display patch, build evidence artifacts.
+# Local changes: pinned Actions, multiple snippets, exact-source display patch, build evidence artifacts.
 name: Reusable user config build
 
 on:
@@ -92,9 +92,10 @@ jobs:
             echo "base_dir=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
           fi
 
-          if [ -n "${snippet}" ]; then
-            extra_west_args="-S \"${snippet}\""
-          fi
+          # Space-separated snippets each get their own -S.
+          for s in ${snippet}; do
+            extra_west_args="${extra_west_args} -S \"${s}\""
+          done
 
           echo "zephyr_version=${ZEPHYR_VERSION}" >> $GITHUB_ENV
           echo "extra_west_args=${extra_west_args}" >> $GITHUB_ENV
