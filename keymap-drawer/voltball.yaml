@@ -260,7 +260,7 @@ layers:
   - {t: ▽, type: trans}
   BT:
   - F1
-  - {t: ▽, type: trans}
+  - LEADER
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
@@ -268,7 +268,7 @@ layers:
   - {t: BT, h: '1'}
   - {t: BT, h: '2'}
   - {t: BT, h: '3'}
-  - {t: ▽, type: trans}
+  - LEADER
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
@@ -322,3 +322,5 @@ combos:
   k: TAB
 - p: [11, 12]
   k: SCRL hold/tap
+- p: [29, 30]
+  k: '&caps_word'
