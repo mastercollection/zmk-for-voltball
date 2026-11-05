@@ -36,13 +36,16 @@
             bindings = <&ptr>, <&ptr>;
         };
 
-        // Timeless home row mods (urob), with this board's 200ms term.
+        // Home row Ctrl/Alt/GUI, tap-preferred: a roll with another key is
+        // always a tap, so Korean cross-hand rolls (ㅇ→ㅏ, ㄴ→ㅏ) never become
+        // Ctrl+letter and swallow the letter. The modifier applies only when the
+        // key is held for the full 200ms term before the next key.
         // Hold only with an opposite-hand or thumb key; tap while typing fast.
 
         hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "balanced";
+            flavor = "tap-preferred";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
 
@@ -60,7 +63,7 @@
         hmr: home_row_mod_right {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "balanced";
+            flavor = "tap-preferred";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
 
@@ -75,8 +78,9 @@
             hold-trigger-on-release;
         };
 
-        // Shift only: no prior-idle, so Shift right after a letter ("해?") still holds.
-        // Balanced flavor + opposite-hand positions still keep rolls as taps.
+        // Shift only: balanced and no prior-idle, so Shift right after a letter
+        // ("해?") still holds. A roll misjudged as Shift rarely shows in Korean,
+        // since only ㅃㅉㄸㄲㅆ and ㅒㅖ change under Shift.
 
         hsl: home_row_shift_left {
             compatible = "zmk,behavior-hold-tap";
