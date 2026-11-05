@@ -14,3 +14,9 @@ struct voltball_ptr_status {
 };
 
 void voltball_ptr_get_status(struct voltball_ptr_status *out);
+
+/* Called by auto mouse on each exit-key non-modifier press. Typing ends a
+ * latched drag scroll; returns false for &ptr itself, which is a pointer
+ * control and neither types nor exits auto mouse. */
+struct device;
+bool voltball_ptr_on_typing(const struct device *behavior);

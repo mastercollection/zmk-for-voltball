@@ -47,7 +47,7 @@ Actions의 `firmware.zip`에는 설치용 UF2 6개만 들어 있다. `build-evid
 
 - `config/voltball.keymap`: 키맵 및 hold-tap/combos.
 - `config/boards/shields/voltball/voltball-layout.dtsi`: 42키 물리 좌표 및 transform.
-- 같은 디렉터리의 left/right/dongle `.conf`, `.overlay`: 장치 역할과 하드웨어 설정.
+- 같은 디렉터리의 `Kconfig.defconfig`, `voltball_dongle.conf`, left/right/dongle `.overlay`: 장치 역할과 하드웨어 설정. 양쪽 공통 설정(배터리 임계값, 절전 시간)은 `Kconfig.defconfig`에 있다.
 - `modules/`: 고정 원본과 호환 패치를 포함한 배터리/자동 레이어 모듈, 자체 포인터 속도·스크롤 모드 모듈(`modules/pointer-mode`).
 
 ## 포인터 속도·스크롤 모드 (`&ptr`)

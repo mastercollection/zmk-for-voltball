@@ -11,6 +11,7 @@
 #include <zmk/matrix.h>
 #include <zmk/behavior.h>
 #include <zmk/virtual_key_position.h>
+#include <voltball/pointer_mode.h>
 #include "auto_mouse_state.h"
 
 BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(DT_DRV_COMPAT) == 1,
@@ -23,10 +24,12 @@ struct threshold_config {
 };
 struct threshold_data {
     struct k_mutex lock;
-    struct auto_mouse_state layers[ZMK_KEYMAP_LAYERS_LEN];
+    struct auto_mouse_state mouse;
 };
 
-/* Match pinned ZMK combo.c ordering: ascending key count, then devicetree order. */
+/* ZMK does not expose combo positions, so rebuild its table from devicetree in
+ * the same order as the pinned combo.c: ascending key count, then devicetree
+ * order. The virtual key position of combo N then indexes exit_combos[N]. */
 #if DT_HAS_COMPAT_STATUS_OKAY(zmk_combos)
 struct exit_combo {
     const uint32_t *positions;
@@ -41,14 +44,6 @@ struct exit_combo {
 static const struct exit_combo exit_combos[] = {
     LISTIFY(20, EXIT_COMBOS_BY_LENGTH, (), 0)};
 #endif
-
-/* Asked on each exit-key non-modifier press, whether or not auto mouse was on.
- * Returning false marks a pointer control (&ptr): it neither types nor exits. */
-static bool (*typing_callback)(const struct device *behavior);
-
-void voltball_auto_mouse_set_typing_callback(bool (*callback)(const struct device *behavior)) {
-    typing_callback = callback;
-}
 
 /* Keymap bindings name their behavior; compare names instead of a device lookup. */
 #define MATCH_NAME(n) || strcmp(name, DEVICE_DT_NAME(n)) == 0
@@ -117,43 +112,37 @@ void voltball_auto_mouse_filter(const struct device *behavior,
     const struct device *dev = DEVICE_DT_INST_GET(0);
     const struct threshold_config *cfg = dev->config;
     struct threshold_data *data = dev->data;
-    k_mutex_lock(&data->lock, K_FOREVER);
-    bool exit = is_exit_key(cfg->mouse_layer, event.position);
-    k_mutex_unlock(&data->lock);
-    /* Ask outside the lock: the callback takes pointer mode's own lock. */
-    if (!exit || (typing_callback && !typing_callback(behavior))) {
+    /* Pointer mode hears every exit-key press; a pointer control (&ptr) neither
+     * types nor exits. Asked before taking the lock: it takes its own. */
+    if (!is_exit_key(cfg->mouse_layer, event.position) || !voltball_ptr_on_typing(behavior)) {
         return;
     }
     k_mutex_lock(&data->lock, K_FOREVER);
-    int64_t now = k_uptime_get();
-    for (int i = 0; i < ZMK_KEYMAP_LAYERS_LEN; i++) {
-        zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(i);
-        bool active = data->layers[i].active && zmk_keymap_layer_active(id);
-        auto_mouse_typing(&data->layers[i], now, cfg->idle_ms);
-        if (active) {
-            zmk_keymap_layer_deactivate(id, false);
-        }
+    zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(cfg->mouse_layer);
+    bool active = data->mouse.active && zmk_keymap_layer_active(id);
+    auto_mouse_typing(&data->mouse, k_uptime_get(), cfg->idle_ms);
+    if (active) {
+        zmk_keymap_layer_deactivate(id, false);
     }
     k_mutex_unlock(&data->lock);
 }
 
 static int threshold_handle_event(const struct device *dev, struct input_event *event,
-                                  uint32_t layer, uint32_t timeout,
+                                  uint32_t param1, uint32_t param2,
                                   struct zmk_input_processor_state *state) {
+    ARG_UNUSED(param1);
+    ARG_UNUSED(param2);
     ARG_UNUSED(state);
-    const struct threshold_config *cfg = dev->config;
-    /* The cell must match mouse-layer, which the key filter reads before any motion. */
-    if (layer != cfg->mouse_layer || timeout != 0) {
-        return -EINVAL;
-    }
     if (event->type != INPUT_EV_REL ||
         (event->code != INPUT_REL_X && event->code != INPUT_REL_Y)) {
         return ZMK_INPUT_PROC_CONTINUE;
     }
+    const struct threshold_config *cfg = dev->config;
     struct threshold_data *data = dev->data;
     k_mutex_lock(&data->lock, K_FOREVER);
-    struct auto_mouse_state *s = &data->layers[layer];
-    zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(layer);
+    struct auto_mouse_state *s = &data->mouse;
+    zmk_keymap_layer_id_t id = zmk_keymap_layer_index_to_id(cfg->mouse_layer);
+    /* The layer may have been turned off elsewhere; re-arm the threshold. */
     if (s->active && !zmk_keymap_layer_active(id)) {
         s->active = false;
         s->distance = 0;

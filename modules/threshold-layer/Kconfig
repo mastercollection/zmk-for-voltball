@@ -7,6 +7,7 @@ config ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER
     bool "Voltball latched automatic mouse layer"
     default y
     depends on DT_HAS_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER_ENABLED
+    depends on ZMK_VOLTBALL_POINTER_MODE
     help
       Latch the mouse layer after pointer motion reaches the threshold.
       Requires the pinned ZMK behavior hook installed by patch_auto_mouse.py.

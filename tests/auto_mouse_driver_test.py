@@ -97,7 +97,7 @@ static bool is_mod(uint16_t page, uint32_t key) {
 """
 TEST = (ROOT / "tests/auto_mouse_driver_cases.h").read_text()
 source = src.joinpath("input_processor_threshold_temp_layer.c").read_text(encoding="utf-8-sig")
-source = re.sub(r"^#include <(?:zephyr/|drivers/|zmk/).*\n", "", source, flags=re.M)
+source = re.sub(r"^#include <(?:zephyr/|drivers/|zmk/|voltball/).*\n", "", source, flags=re.M)
 with tempfile.TemporaryDirectory(prefix="voltball-auto-mouse-", dir=ROOT / "tests") as tmp:
     tmp = Path(tmp)
     test = tmp / "driver_test.c"

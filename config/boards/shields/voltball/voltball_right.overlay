@@ -59,16 +59,7 @@
         irq-gpios = <&gpio0 20 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
         /* Experimental: ball motion wakes this half from deep sleep (modules/trackball-wake). */
         wakeup-source;
-        /*
-         * 中文: 驱动未配置 res-cpi 时会保留 PAW3222 传感器硬件默认值。
-         * English: Without res-cpi, the driver keeps the PAW3222 sensor hardware default.
-         *
-         * 中文: 当前驱动有效范围是 608-4826 CPI，步进为 38；建议使用 38 的整数倍。
-         * English: This driver accepts 608-4826 CPI in steps of 38; prefer multiples of 38.
-         *
-         * 中文: 常用值: 608, 760, 950, 1140, 1520, 1900, 2280, 2660, 3040, 3420, 3800, 4180, 4560, 4826。
-         * English: Common values: 608, 760, 950, 1140, 1520, 1900, 2280, 2660, 3040, 3420, 3800, 4180, 4560, 4826.
-         */
+        /* The driver accepts 608-4826 CPI in steps of 38 (608, 760, 950, 1140, ...). */
         res-cpi = <950>;
     };
 };

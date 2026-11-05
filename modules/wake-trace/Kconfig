@@ -2,7 +2,7 @@
 
 config VOLTBALL_WAKE_TRACE
     bool "Log how long a half takes to come back after deep sleep"
-    depends on ZMK_SPLIT_ROLE_CENTRAL && BT_CENTRAL && LOG
+    depends on ZMK_SPLIT_ROLE_CENTRAL && LOG
     help
       Diagnostic build only. On the dongle, logs "[wake]" lines when a half's
       split advertisement is first seen, when it connects, when encryption and

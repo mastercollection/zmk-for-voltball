@@ -2,16 +2,13 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
-    # 中文: PAW3222 轨迹球驱动和状态灯模块来源。
-    # English: Remote for the PAW3222 trackball driver and status LED module.
+    # PAW3222 trackball driver and status LED module.
     - name: sekigon-gonnoc
       url-base: https://github.com/sekigon-gonnoc
-    # 中文: 输入处理器扩展来源，提供坐标变换、滚动映射和缩放等处理器。
-    # English: Remote for input processor extensions such as XY transforms, scroll mapping, and scaling.
+    # Input processor extensions (keybind processor used for NAVI arrows).
     - name: zettaface
       url-base: https://github.com/zettaface
-    # 中文: 阈值临时层模块来源，用轨迹球移动触发指定层并在超时后退出。
-    # English: Remote for the threshold temporary layer module, which activates a layer from pointer movement and times out.
+    # Origin of the vendored threshold temporary layer module (modules/threshold-layer).
     - name: gohanda11
       url-base: https://github.com/gohanda11
     - name: carrefinho
