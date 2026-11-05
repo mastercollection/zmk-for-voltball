@@ -42,9 +42,6 @@ config ZMK_NON_LIPO_LOW_MV
 # Enter deep sleep after advertising without a connection for 5 minutes.
 config ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT
     default 300000
-# Deep sleep after 2 hours without key or trackball input (ZMK default 15 min).
-config ZMK_IDLE_SLEEP_TIMEOUT
-    default 7200000
 endif
 
 if SHIELD_VOLTBALL_RIGHT
