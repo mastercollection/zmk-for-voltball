@@ -57,8 +57,7 @@ static inline bool ptr_deadzone(struct ptr_state *s, int32_t value, int64_t now,
     }
     s->last_motion = now;
     if (!s->dz_moving) {
-        uint32_t magnitude = value < 0 ? (uint32_t)(-(int64_t)value) : (uint32_t)value;
-        s->dz_distance += magnitude;
+        s->dz_distance += value < 0 ? -(uint32_t)value : (uint32_t)value;
         s->dz_moving = s->dz_distance >= deadzone;
     }
     return s->dz_moving;

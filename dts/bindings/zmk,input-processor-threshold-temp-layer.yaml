@@ -3,13 +3,12 @@
 
 description: |
   Latched auto-mouse layer activated by accumulated pointer movement.
-  Cells are layer index and timeout (must be zero). A non-modifier press on a key
-  that is &trans on that layer cancels it and is delivered normally (QMK style).
-  Requires the pinned ZMK behavior-dispatch hook.
+  A non-modifier press on a key that is &trans on that layer cancels it and
+  is delivered normally (QMK style). Requires the pinned ZMK behavior-dispatch hook.
 
 compatible: "zmk,input-processor-threshold-temp-layer"
 
-include: ip_two_param.yaml
+include: ip_zero_param.yaml
 
 properties:
   activation-threshold:
@@ -30,5 +29,5 @@ properties:
     type: int
     required: true
     description: |
-      Index of the latched layer; must equal the listener cell. Exit keys are
-      read from its bindings, so it must be known before any motion.
+      Index of the latched layer. Exit keys are read from its bindings, so it
+      must be known before any motion.

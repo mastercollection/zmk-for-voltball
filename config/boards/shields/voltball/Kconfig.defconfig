@@ -15,6 +15,33 @@ endif
 if SHIELD_VOLTBALL_LEFT || SHIELD_VOLTBALL_RIGHT
 config ZMK_STATUS_LED
     default y
+config ZMK_BLE_EXPERIMENTAL_CONN
+    default y
+choice BT_CTLR_TX_PWR
+    default BT_CTLR_TX_PWR_PLUS_8
+endchoice
+
+config ZMK_NON_LIPO_BATTERY_MANAGEMENT
+    default y
+# P0.31/AIN7 is connected to the midpoint of a fixed 1M/1M divider, so the
+# driver reads half of the actual AA voltage. This module compares the raw ADC
+# millivolts directly and does not compensate for the divider.
+#
+# Active profile: Toshiba IMPULSE AA 2550 mAh, nominal 1.2 V NiMH.
+# These are initial voltage-based estimates, not calibrated state of charge.
+#   650 mV at ADC = 1.30 V at cell = 100% indication
+#   550 mV at ADC = 1.10 V at cell = 0% indication
+#   500 mV at ADC = 1.00 V at cell = low-voltage shutdown
+# Non-rechargeable 1.5 V alkaline profile would be 750 / 500 / 425.
+config ZMK_NON_LIPO_MAX_MV
+    default 650
+config ZMK_NON_LIPO_MIN_MV
+    default 550
+config ZMK_NON_LIPO_LOW_MV
+    default 500
+# Enter deep sleep after advertising without a connection for 5 minutes.
+config ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT
+    default 300000
 endif
 
 if SHIELD_VOLTBALL_RIGHT

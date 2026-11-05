@@ -1,7 +1,7 @@
 /* Included after the actual driver source by the host regression harness. */
 static void move(int32_t delta) {
     struct input_event event = {INPUT_EV_REL, INPUT_REL_X, delta};
-    assert(threshold_handle_event(&mock_device, &event, 5, 0, NULL) == 0);
+    assert(threshold_handle_event(&mock_device, &event, 0, 0, NULL) == 0);
 }
 
 /* The filter never consumes; returns false so call sites read as "delivered". */
@@ -12,9 +12,9 @@ static bool filter(const struct device *behavior, uint32_t position, uint32_t ke
     return false;
 }
 
-static int typing_calls;
 /* Stands in for pointer mode: &ptr (device_scroll here) is a pointer control. */
-static bool count_typing(const struct device *behavior) {
+static int typing_calls;
+bool voltball_ptr_on_typing(const struct device *behavior) {
     typing_calls++;
     return behavior != &device_scroll;
 }
@@ -85,8 +85,9 @@ int main(void) {
     assert(!active_layers[5]);
     assert(!filter(&device_kp, 13, 9, false));
 
-    /* Any &trans position exits, both halves, any resolved action. */
-    const struct device *actions[] = {&device_kp, &device_scroll, &device_layer, &device_none};
+    /* Any &trans position exits, both halves, any resolved action other than
+     * a pointer control. */
+    const struct device *actions[] = {&device_kp, &device_layer, &device_none};
     for (size_t a = 0; a < ARRAY_SIZE(actions); a++) {
         for (uint32_t pos = 0; pos < 42; pos++) {
             if (pos == 8 || (pos >= 35 && pos <= 39)) {
@@ -128,7 +129,7 @@ int main(void) {
     activate();
     locked_layers[5] = true;
     assert(!filter(&device_kp, 0, 20, true));
-    assert(active_layers[5] && !data.layers[5].active);
+    assert(active_layers[5] && !data.mouse.active);
 
     /* A stale internal state after an external layer exit re-arms cleanly. */
     activate();
@@ -140,16 +141,10 @@ int main(void) {
     move(1); assert(!active_layers[5]);
     move(99); assert(active_layers[5]);
     struct input_event wheel = {INPUT_EV_REL, 8, 100};
-    assert(threshold_handle_event(&mock_device, &wheel, 5, 0, NULL) == 0);
+    assert(threshold_handle_event(&mock_device, &wheel, 0, 0, NULL) == 0);
     assert(active_layers[5]);
-    assert(threshold_handle_event(&mock_device, &wheel, 5, 500, NULL) == -EINVAL);
-    assert(threshold_handle_event(&mock_device, &wheel, 256, 0, NULL) == -EINVAL);
-
-    /* A listener cell that disagrees with mouse-layer is rejected. */
-    assert(threshold_handle_event(&mock_device, &wheel, 4, 0, NULL) == -EINVAL);
 
     /* Pointer mode hears every exit-key press, with or without auto mouse. */
-    voltball_auto_mouse_set_typing_callback(count_typing);
     activate();
     typing_calls = 0;
     assert(!filter(&device_kp, 0, 20, true) && typing_calls == 1);
@@ -168,7 +163,6 @@ int main(void) {
     assert(active_layers[5]);
     assert(!filter(&device_kp, 0, 20, true) && typing_calls == 2);
     assert(!active_layers[5]);
-    voltball_auto_mouse_set_typing_callback(NULL);
     puts("PASS: actual driver: &trans exits and types, buttons stay, modifiers, hold-tap, combos, live keymap, cooldown, locks, typing callback, layer-off typing, pointer controls keep mouse");
     return 0;
 }

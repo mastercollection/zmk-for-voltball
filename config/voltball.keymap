@@ -3,9 +3,6 @@
  * TOTEM master b4b2073: 38 keys mapped to Voltball; Totem layer numbering; main mouse/BT retained; scroll mode and pointer speed via &ptr.
  */
 
-#include <input/processors.dtsi>
-#include <dt-bindings/zmk/input_transform.h>
-#include <zephyr/dt-bindings/input/input-event-codes.h>
 #include <dt-bindings/voltball/pointer_mode.h>
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
@@ -27,7 +24,6 @@
         ptr: voltball_pointer {
             compatible = "zmk,behavior-voltball-pointer";
             #binding-cells = <1>;
-            display-name = "Pointer";
         };
 
         // Tap: latch drag scroll on/off. Hold: scroll only while held.
@@ -35,7 +31,6 @@
         ptr_ht: scroll_hold_tap {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            display-name = "Scroll Hold/Tap";
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
             bindings = <&ptr>, <&ptr>;
@@ -47,7 +42,6 @@
         hml: home_row_mod_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            display-name = "Home Row Mod Left";
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
@@ -66,7 +60,6 @@
         hmr: home_row_mod_right {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            display-name = "Home Row Mod Right";
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
@@ -88,7 +81,6 @@
         hsl: home_row_shift_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            display-name = "Home Row Shift Left";
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;
@@ -100,7 +92,6 @@
         hsr: home_row_shift_right {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            display-name = "Home Row Shift Right";
             flavor = "balanced";
             tapping-term-ms = <200>;
             quick-tap-ms = <175>;

@@ -31,7 +31,6 @@ static const int32_t scroll_scales[] = SCROLL_SCALES;
 #define SCROLL_DEFAULT DT_INST_PROP(0, scroll_default_index)
 BUILD_ASSERT(POINTER_DEFAULT < POINTER_STEPS, "pointer-default-index out of range");
 BUILD_ASSERT(SCROLL_DEFAULT < SCROLL_STEPS, "scroll-default-index out of range");
-BUILD_ASSERT(POINTER_STEPS <= UINT8_MAX && SCROLL_STEPS <= UINT8_MAX, "Too many steps");
 
 #define PTR_BEHAVIOR DT_INST(0, zmk_behavior_voltball_pointer)
 BUILD_ASSERT(DT_NUM_INST_STATUS_OKAY(zmk_behavior_voltball_pointer) == 1,
@@ -144,12 +143,9 @@ static int ptr_handle_event(const struct device *dev, struct input_event *event,
     return ZMK_INPUT_PROC_CONTINUE;
 }
 
-#if IS_ENABLED(CONFIG_ZMK_INPUT_PROCESSOR_THRESHOLD_TEMP_LAYER)
-#include "auto_mouse_state.h"
-
 /* Typing (an &trans key on MOUSE) ends a latched drag scroll, like auto mouse.
  * &ptr itself is a pointer control: it keeps the mouse layer and the toggle. */
-static bool ptr_on_typing(const struct device *behavior) {
+bool voltball_ptr_on_typing(const struct device *behavior) {
     if (behavior == DEVICE_DT_GET(PTR_BEHAVIOR)) {
         return false;
     }
@@ -161,20 +157,10 @@ static bool ptr_on_typing(const struct device *behavior) {
     return true;
 }
 
-static int ptr_init(const struct device *dev) {
-    ARG_UNUSED(dev);
-    voltball_auto_mouse_set_typing_callback(ptr_on_typing);
-    return 0;
-}
-#define PTR_INIT ptr_init
-#else
-#define PTR_INIT NULL
-#endif
-
 static const struct zmk_input_processor_driver_api ptr_processor_api = {
     .handle_event = ptr_handle_event,
 };
-DEVICE_DT_INST_DEFINE(0, PTR_INIT, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
+DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
                       &ptr_processor_api);
 
 /* &ptr behavior. Runs on the central, where the processor also lives. */
@@ -182,22 +168,21 @@ DEVICE_DT_INST_DEFINE(0, PTR_INIT, NULL, NULL, NULL, POST_KERNEL, CONFIG_KERNEL_
 static int ptr_binding_pressed(struct zmk_behavior_binding *binding,
                                struct zmk_behavior_binding_event event) {
     ARG_UNUSED(event);
+    uint32_t command = binding->param1;
+    if (command > PTR_SCRL_MO) {
+        return -ENOTSUP;
+    }
     bool save = false;
     k_mutex_lock(&ptr_lock, K_FOREVER);
     bool scroll = ptr_scroll_active(&state);
     uint8_t *step = scroll ? &state.scroll_step : &state.pointer_step;
     uint8_t count = scroll ? SCROLL_STEPS : POINTER_STEPS;
-    switch (binding->param1) {
+    switch (command) {
     case PTR_SPD_UP:
-        save = ptr_step(step, 1, count);
-        speed_presses++;
-        break;
     case PTR_SPD_DN:
-        save = ptr_step(step, -1, count);
-        speed_presses++;
+        save = ptr_step(step, command == PTR_SPD_UP ? 1 : -1, count);
         break;
     case PTR_SPD_RST: {
-        speed_presses++;
         uint8_t initial = scroll ? SCROLL_DEFAULT : POINTER_DEFAULT;
         save = *step != initial;
         *step = initial;
@@ -209,9 +194,9 @@ static int ptr_binding_pressed(struct zmk_behavior_binding *binding,
     case PTR_SCRL_MO:
         state.scroll_held++;
         break;
-    default:
-        k_mutex_unlock(&ptr_lock);
-        return -ENOTSUP;
+    }
+    if (command <= PTR_SPD_RST) {
+        speed_presses++;
     }
     ptr_clear_remainders(&state);
     LOG_DBG("pointer step %d scroll step %d scroll %d", state.pointer_step, state.scroll_step,

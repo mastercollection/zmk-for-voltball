@@ -67,6 +67,7 @@ struct device { const void *config; void *data; };
 static struct device mock_device;
 static struct device device_trans, device_mt, device_kp, device_sk;
 static struct device device_scroll, device_click, device_layer, device_none;
+bool voltball_ptr_on_typing(const struct device *behavior); /* voltball/pointer_mode.h */
 struct zmk_behavior_binding { const char *behavior_dev; uint32_t param1, param2; };
 struct zmk_behavior_binding_event { uint32_t position; };
 struct input_event { int type, code; int32_t value; };
@@ -97,7 +98,7 @@ static bool is_mod(uint16_t page, uint32_t key) {
 """
 TEST = (ROOT / "tests/auto_mouse_driver_cases.h").read_text()
 source = src.joinpath("input_processor_threshold_temp_layer.c").read_text(encoding="utf-8-sig")
-source = re.sub(r"^#include <(?:zephyr/|drivers/|zmk/).*\n", "", source, flags=re.M)
+source = re.sub(r"^#include <(?:zephyr/|drivers/|zmk/|voltball/).*\n", "", source, flags=re.M)
 with tempfile.TemporaryDirectory(prefix="voltball-auto-mouse-", dir=ROOT / "tests") as tmp:
     tmp = Path(tmp)
     test = tmp / "driver_test.c"
