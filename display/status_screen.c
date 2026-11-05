@@ -34,7 +34,7 @@
 #define COLOR_BOX_OFF 0x37323c
 #define COLOR_BAR_BG 0x302a32
 
-extern const lv_image_dsc_t mascot_frames[4];
+extern const lv_image_dsc_t mascot_frames[MASCOT_FRAME_COUNT];
 static struct zmk_widget_modifier_indicator modifier_widget;
 static lv_obj_t *pet, *layer_label, *speed_label;
 /* Indicator boxes left to right after the layer name: Scroll, Caps, NumLock. */
@@ -46,7 +46,12 @@ static uint32_t previous_colors[IND_COUNT] = {[0 ... IND_COUNT - 1] = UINT32_MAX
 #define SPEED_FLASH_MS 1000
 static uint32_t speed_flash_until, previous_speed_presses;
 static uint8_t current_frame, previous_layer = UINT8_MAX, previous_wpm = UINT8_MAX;
+static enum mascot_gait current_gait;
 static uint32_t frame_tick;
+/* The 160x132 mascot slot; narrower frames are centered in it. */
+#define MASCOT_X 47
+#define MASCOT_Y 66
+#define MASCOT_SLOT_WIDTH 160
 
 /* Written from event context, read by the display timer; copied under the
  * mutex so the timer sees a consistent snapshot. All LVGL calls stay on the
@@ -152,14 +157,20 @@ static void screen_tick(lv_timer_t *timer) {
         lv_obj_set_style_text_color(speed_label, lv_color_hex(COLOR_MUTED), 0);
         previous_wpm = wpm;
     }
+    /* Walk while typing slowly, ride the scooter when fast; a gait change
+     * shows its first frame at once. */
+    enum mascot_gait gait =
+        mascot_gait_next(current_gait, mascot_running(&s.input, k_uptime_get()), wpm);
     uint8_t next = current_frame;
-    if (!mascot_running(&s.input, k_uptime_get())) { next = 0; }
-    else if (current_frame == 0 || now - frame_tick >= mascot_frame_ms(wpm)) {
-        next = current_frame % 3 + 1;
+    if (gait != current_gait ||
+        (gait != MASCOT_IDLE && now - frame_tick >= mascot_frame_ms(gait, wpm))) {
+        next = mascot_next_frame(gait, current_frame);
         frame_tick = now;
+        current_gait = gait;
     }
     if (next != current_frame) {
         lv_image_set_src(pet, &mascot_frames[next]);
+        lv_obj_set_x(pet, MASCOT_X + (MASCOT_SLOT_WIDTH - mascot_frames[next].header.w) / 2);
         current_frame = next;
     }
 
@@ -250,8 +261,9 @@ lv_obj_t *zmk_display_status_screen(void) {
     }
 
     pet = lv_image_create(screen);
-    lv_image_set_src(pet, &mascot_frames[0]);
-    lv_obj_set_pos(pet, 47, 66);
+    lv_image_set_src(pet, &mascot_frames[MASCOT_IDLE_FRAME]);
+    lv_obj_set_pos(pet, MASCOT_X + (MASCOT_SLOT_WIDTH - mascot_frames[MASCOT_IDLE_FRAME].header.w) / 2,
+                   MASCOT_Y);
     zmk_widget_modifier_indicator_init(&modifier_widget, screen);
     lv_obj_t *mods = zmk_widget_modifier_indicator_obj(&modifier_widget);
     lv_obj_set_pos(mods, 232, 59);

@@ -1,5 +1,7 @@
 """Apply reviewed compatibility fixes to exact pinned external module sources in CI."""
 from pathlib import Path
+import re
+import struct
 import subprocess
 import sys
 import shutil
@@ -30,22 +32,32 @@ assets = Path(__file__).resolve().parents[1] / "display"
 layout = module / "boards/shields/prospector_adapter/src/layouts/classic"
 for name in ("status_screen.c", "mascot_logic.h"):
     shutil.copyfile(assets / name, layout / name)
-packed = (assets / "mascot.rgb565a8").read_bytes()
-frame_size = 160 * 132 * 3
-if len(packed) != 4 * frame_size:
-    raise SystemExit("Unexpected mascot asset dimensions")
+# Packed I8 frames: u16 width, u16 height, 256 ARGB8888 palette entries, then
+# one index per pixel. Index 0 is transparent. mascot_logic.h fixes the order.
+packed = (assets / "mascot.i8").read_bytes()
+logic = (assets / "mascot_logic.h").read_text()
+expected_frames = 1 + sum(int(re.search(rf"#define MASCOT_{name}_FRAMES (\d+)", logic).group(1))
+                          for name in ("WALK", "RUN"))
+frames, offset = [], 0
+while offset < len(packed):
+    width, height = struct.unpack_from("<HH", packed, offset)
+    size = 1024 + width * height
+    frames.append((width, height, packed[offset + 4:offset + 4 + size]))
+    offset += 4 + size
+if offset != len(packed) or len(frames) != expected_frames or any(
+        len(data) != 1024 + w * h or w % 4 or h != 132 for w, h, data in frames):
+    raise SystemExit("Unexpected mascot asset layout")
 lines = ['#include <lvgl.h>']
-for frame in range(4):
-    data = packed[frame * frame_size:(frame + 1) * frame_size]
+for frame, (width, height, data) in enumerate(frames):
     lines.append(f'static const uint8_t mascot_data_{frame}[] __attribute__((aligned(4))) = {{')
-    for offset in range(0, len(data), 24):
-        lines.append(','.join(f'0x{b:02x}' for b in data[offset:offset + 24]) + ',')
+    for start in range(0, len(data), 24):
+        lines.append(','.join(f'0x{b:02x}' for b in data[start:start + 24]) + ',')
     lines.append('};')
-lines.append('const lv_image_dsc_t mascot_frames[4] = {')
-for frame in range(4):
-    lines.append('{.header = {.magic = LV_IMAGE_HEADER_MAGIC, .cf = LV_COLOR_FORMAT_RGB565A8, '
-                 '.w = 160, .h = 132, .stride = 320}, '
-                 f'.data_size = {frame_size}, .data = mascot_data_{frame}' + '},')
+lines.append(f'const lv_image_dsc_t mascot_frames[{len(frames)}] = {{')
+for frame, (width, height, data) in enumerate(frames):
+    lines.append('{.header = {.magic = LV_IMAGE_HEADER_MAGIC, .cf = LV_COLOR_FORMAT_I8, '
+                 f'.w = {width}, .h = {height}, .stride = {width}}}, '
+                 f'.data_size = {len(data)}, .data = mascot_data_{frame}' + '},')
 lines.append('};')
 (layout / "mascot_assets.c").write_text('\n'.join(lines) + '\n')
 # Keep the actual default modifier widget, including its ordering and OS symbols.
@@ -65,4 +77,4 @@ assert source.count(old) == 1
 source = source.replace(old, 'set(layout_sources src/layouts/classic/modifier_indicator.c '
                         'src/layouts/classic/mascot_assets.c)')
 cmake.write_text(source)
-print("Installed landscape mascot screen, transparent frames, and default modifiers")
+print(f"Installed landscape mascot screen, {len(frames)} I8 frames, and default modifiers")
