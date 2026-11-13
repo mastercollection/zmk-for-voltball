@@ -6,7 +6,7 @@ import sys
 
 root = Path(sys.argv[1])
 sha = sys.argv[2]
-names = ["voltball_left", "voltball_right", "prospector", "prospector_wake_trace",
+names = ["voltball_left", "voltball_left_power_trace", "voltball_right", "prospector", "prospector_wake_trace",
          "voltball_left_settings_reset", "voltball_right_settings_reset", "prospector_settings_reset"]
 report = {}
 for name in names:
@@ -38,6 +38,11 @@ for name in names:
         assert conf["CONFIG_PROSPECTOR_FIXED_BRIGHTNESS"] == "50"
         assert 'compatible = "zmk,non-lipo-battery"' not in text(".dts")
     else:
+        trace = name == "voltball_left_power_trace"
+        assert on("VOLTBALL_POWER_TRACE") == trace and on("ZMK_USB_LOGGING") == trace, name
+        if trace:
+            assert on("HWINFO") and on("SETTINGS"), name
+            assert conf["CONFIG_LOG_MAX_LEVEL"] == "3", name
         assert not on("ZMK_SPLIT_ROLE_CENTRAL") and not on("ZMK_STUDIO")
         assert on("ZMK_NON_LIPO_BATTERY_MANAGEMENT") and on("ZMK_SLEEP")
         assert conf["CONFIG_ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT"] == "300000"
@@ -46,5 +51,5 @@ for name in names:
         assert on("VOLTBALL_TRACKBALL_WAKE") == (name == "voltball_right")
         assert on("ZMK_INPUT_SPLIT") == (name == "voltball_right")
     report[name] = {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
-assert len(list(root.glob("*.uf2"))) == 7
+assert len(list(root.glob("*.uf2"))) == len(names)
 print(json.dumps({"source_sha": sha, "firmware": report, "result": "PASS"}, indent=2))

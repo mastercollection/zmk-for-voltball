@@ -19,6 +19,7 @@
 
 #include <zmk/pm.h>
 #include <zmk/usb.h>
+#include "power_trace.h"
 
 #ifdef CONFIG_ADC_NRFX_SAADC
 #include <zephyr/dt-bindings/adc/nrf-adc.h>
@@ -47,6 +48,7 @@ static void adv_timeout_handler(struct k_work *work) {
         // If we've been advertising longer than the timeout, enter sleep mode
         if (elapsed >= CONFIG_ZMK_NON_LIPO_ADV_SLEEP_TIMEOUT) {
             LOG_WRN("Advertising timeout reached (%lldms), entering sleep", elapsed);
+            voltball_trace_shutdown(VOLTBALL_SHUTDOWN_ADVERTISING, true);
             
             // Wait for logs to flush
             k_sleep(K_MSEC(100));
@@ -130,6 +132,7 @@ static void check_voltage_and_shutdown(uint16_t millivolts) {
     if (millivolts <= CONFIG_ZMK_NON_LIPO_LOW_MV) {
         // Only shut down if USB power is not connected
         if (!zmk_usb_is_powered()) {
+            voltball_trace_shutdown(VOLTBALL_SHUTDOWN_LOW_VOLTAGE, false);
             LOG_WRN("Battery voltage (%dmv) below critical threshold (%dmv) and USB not connected, shutting down",
                     millivolts, CONFIG_ZMK_NON_LIPO_LOW_MV);
 
@@ -188,6 +191,7 @@ static int non_lipo_sample_fetch(const struct device *dev, enum sensor_channel c
         
         drv_data->millivolts = millivolts;
         drv_data->state_of_charge = non_lipo_mv_to_pct(millivolts);
+        voltball_trace_voltage(millivolts);
         
         LOG_DBG("Battery: %d mV, %d%%", millivolts, drv_data->state_of_charge);
         

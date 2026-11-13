@@ -1,5 +1,6 @@
 if(CONFIG_ZMK_NON_LIPO_BATTERY_MANAGEMENT)
     zephyr_library()
     zephyr_library_sources(src/non_lipo_battery_management.c)
+    zephyr_library_sources_ifdef(CONFIG_VOLTBALL_POWER_TRACE src/power_trace.c)
     zephyr_library_include_directories(${CMAKE_SOURCE_DIR}/include)
 endif()

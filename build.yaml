@@ -3,6 +3,11 @@ include:
     shield: voltball_left
     artifact-name: voltball_left
   - board: nice_nano@2.0.0//zmk
+    shield: voltball_left
+    snippet: zmk-usb-logging
+    cmake-args: -DCONFIG_VOLTBALL_POWER_TRACE=y -DCONFIG_LOG_MAX_LEVEL=3
+    artifact-name: voltball_left_power_trace
+  - board: nice_nano@2.0.0//zmk
     shield: voltball_right
     artifact-name: voltball_right
   - board: xiao_ble//zmk

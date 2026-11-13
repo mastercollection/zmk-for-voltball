@@ -13,6 +13,14 @@ config ZMK_NON_LIPO_BATTERY_MANAGEMENT
 
 if ZMK_NON_LIPO_BATTERY_MANAGEMENT
 
+config VOLTBALL_POWER_TRACE
+    bool "Log peripheral boot, battery and shutdown diagnostics"
+    depends on LOG && SETTINGS
+    select HWINFO
+    help
+      Diagnostic-only USB logs and a persistent record of the last orderly
+      shutdown request. USB power changes sleep and low-voltage behavior.
+
 config ZMK_NON_LIPO_MIN_MV
     int "Minimum voltage in millivolts"
     default 1100
