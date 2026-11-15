@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
+#include <soc.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/hwinfo.h>
 #include <zephyr/drivers/sensor.h>
@@ -45,6 +46,9 @@ struct boot_history {
     uint32_t version;
     uint32_t count;
     struct boot_entry entries[BOOT_HISTORY_SIZE];
+    /* Append fields to preserve the version-1 binary layout when migrating. */
+    uint32_t raw_resetreas[BOOT_HISTORY_SIZE];
+    uint32_t raw_valid[BOOT_HISTORY_SIZE];
 };
 
 static struct shutdown_record battery;
@@ -52,8 +56,9 @@ static struct shutdown_record previous;
 static struct k_spinlock battery_lock;
 static uint32_t boot_cause;
 static int boot_cause_rc;
+static uint32_t boot_raw_resetreas;
 static bool previous_loaded;
-static struct boot_history boots = {.version = 1};
+static struct boot_history boots = {.version = 2};
 static bool boot_registered;
 static int boot_save_rc = -EAGAIN;
 static int shutdown_load_rc = -ENOENT;
@@ -113,16 +118,19 @@ void voltball_trace_shutdown(enum voltball_shutdown_reason reason, bool refresh)
 
 static int load_record(const char *name, size_t len, settings_read_cb read_cb, void *arg) {
     if (strcmp(name, "boots") == 0) {
-        struct boot_history loaded;
+        struct boot_history loaded = {0};
+        const size_t legacy_size = offsetof(struct boot_history, raw_resetreas);
         boot_load_rc = -EINVAL;
-        if (len != sizeof(loaded)) {
+        if (len != legacy_size && len != sizeof(loaded)) {
             return boot_load_rc;
         }
-        ssize_t count = read_cb(arg, &loaded, sizeof(loaded));
-        if (count != sizeof(loaded) || loaded.version != 1 ||
+        ssize_t count = read_cb(arg, &loaded, len);
+        if (count != len || !((len == legacy_size && loaded.version == 1) ||
+                             (len == sizeof(loaded) && loaded.version == 2)) ||
             loaded.count > BOOT_HISTORY_SIZE) {
             return boot_load_rc;
         }
+        loaded.version = 2;
         k_mutex_lock(&history_mutex, K_FOREVER);
         if (!boot_registered) {
             boots = loaded;
@@ -166,8 +174,14 @@ static int register_boot(void) {
         if (boots.count == BOOT_HISTORY_SIZE) {
             memmove(&boots.entries[0], &boots.entries[1],
                     sizeof(boots.entries[0]) * (BOOT_HISTORY_SIZE - 1));
+            memmove(&boots.raw_resetreas[0], &boots.raw_resetreas[1],
+                    sizeof(boots.raw_resetreas[0]) * (BOOT_HISTORY_SIZE - 1));
+            memmove(&boots.raw_valid[0], &boots.raw_valid[1],
+                    sizeof(boots.raw_valid[0]) * (BOOT_HISTORY_SIZE - 1));
             boots.count--;
         }
+        boots.raw_resetreas[boots.count] = boot_raw_resetreas;
+        boots.raw_valid[boots.count] = 1;
         boots.entries[boots.count++] = (struct boot_entry){
             .id = next_id, .cause = boot_cause, .cause_rc = boot_cause_rc,
         };
@@ -194,20 +208,20 @@ SETTINGS_STATIC_HANDLER_DEFINE(voltball_power, "voltball_power", NULL, load_reco
 
 static void heartbeat(struct k_work *work) {
     k_mutex_lock(&history_mutex, K_FOREVER);
-    LOG_INF("[power] boot cause=0x%08x rc=%d pin=%u software=%u watchdog=%u "
-            "lockup=%u low_power_wake=%u por=%u brownout=%u usb=%u previous=%u", boot_cause, boot_cause_rc,
+    LOG_INF("[power] boot raw_resetreas=0x%08x cause=0x%08x rc=%d pin=%u software=%u watchdog=%u "
+            "lockup=%u low_power_wake=%u usb=%u previous=%u", boot_raw_resetreas, boot_cause, boot_cause_rc,
             !!(boot_cause & RESET_PIN), !!(boot_cause & RESET_SOFTWARE),
             !!(boot_cause & RESET_WATCHDOG), !!(boot_cause & RESET_CPU_LOCKUP),
-            !!(boot_cause & RESET_LOW_POWER_WAKE), !!(boot_cause & RESET_POR),
-            !!(boot_cause & RESET_BROWNOUT), zmk_usb_is_powered(), previous_loaded);
+            !!(boot_cause & RESET_LOW_POWER_WAKE), zmk_usb_is_powered(), previous_loaded);
     struct shutdown_record record = snapshot();
     record.boot_id = current_boot_id;
     log_record("alive", &record);
     LOG_INF("[power] history boot_load_rc=%d boot_save_rc=%d shutdown_load_rc=%d",
             boot_load_rc, boot_save_rc, shutdown_load_rc);
     for (uint32_t i = 0; i < boots.count; i++) {
-        LOG_INF("[power] boot-history boot_id=%u cause=0x%08x rc=%d",
-                boots.entries[i].id, boots.entries[i].cause, boots.entries[i].cause_rc);
+        LOG_INF("[power] boot-history boot_id=%u cause=0x%08x rc=%d raw_resetreas=0x%08x raw_valid=%u",
+                boots.entries[i].id, boots.entries[i].cause, boots.entries[i].cause_rc,
+                boots.raw_resetreas[i], boots.raw_valid[i]);
     }
     if (previous_loaded) {
         log_record("last-saved-shutdown-request", &previous);
@@ -238,9 +252,18 @@ static int activity_listener(const zmk_event_t *event) {
 ZMK_LISTENER(power_trace, activity_listener);
 ZMK_SUBSCRIPTION(power_trace, zmk_activity_state_changed);
 
+/* Read before application/device initialization can clear the hardware flags.
+ * The bootloader has already run; this cannot recover bits it cleared. */
+static int capture_resetreas(void) {
+    boot_raw_resetreas = NRF_POWER->RESETREAS;
+    return 0;
+}
+SYS_INIT(capture_resetreas, PRE_KERNEL_1, 0);
+
 static int power_trace_init(void) {
     boot_cause_rc = hwinfo_get_reset_cause(&boot_cause);
-    LOG_INF("[power] boot cause=0x%08x rc=%d", boot_cause, boot_cause_rc);
+    LOG_INF("[power] boot raw_resetreas=0x%08x cause=0x%08x rc=%d",
+            boot_raw_resetreas, boot_cause, boot_cause_rc);
     if (boot_cause_rc == 0) {
         int rc = hwinfo_clear_reset_cause();
         LOG_INF("[power] clear reset cause rc=%d", rc);
