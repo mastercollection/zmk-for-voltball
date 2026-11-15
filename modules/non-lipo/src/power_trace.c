@@ -99,8 +99,10 @@ void voltball_trace_shutdown(enum voltball_shutdown_reason reason, bool refresh)
     k_mutex_lock(&history_mutex, K_FOREVER);
     /* Zero explicitly means attribution is unavailable (e.g. boot save failed). */
     record.boot_id = current_boot_id;
+    k_mutex_unlock(&history_mutex);
     log_record("shutdown-request", &record);
     int rc = settings_save_one(TRACE_KEY, &record, sizeof(record));
+    k_mutex_lock(&history_mutex, K_FOREVER);
     if (rc == 0) {
         previous = record;
         previous_loaded = true;
@@ -170,7 +172,13 @@ static int register_boot(void) {
             .id = next_id, .cause = boot_cause, .cause_rc = boot_cause_rc,
         };
         boot_registered = true;
-        boot_save_rc = settings_save_one(BOOT_KEY, &boots, sizeof(boots));
+        struct boot_history saved = boots;
+        /* settings_load already holds the settings mutex. Never acquire it
+         * while holding history_mutex, including from shutdown callbacks. */
+        k_mutex_unlock(&history_mutex);
+        int rc = settings_save_one(BOOT_KEY, &saved, sizeof(saved));
+        k_mutex_lock(&history_mutex, K_FOREVER);
+        boot_save_rc = rc;
         if (boot_save_rc == 0) {
             current_boot_id = next_id;
         }
